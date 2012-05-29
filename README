@@ -1,0 +1,24 @@
+MePGen is a memorable password generator.
+
+A memorable password is
+	- composed of (upper- and lowercase) consonants and vowels, punctuation and numbers;
+	- composed of several words separated by punctuation and numbers.
+	
+A word
+	- is composed of consonants and vowels;
+	- starts with an uppercase letter, followed by lowercase ones, or in lowercase, or in uppercase;
+	- is composed of syllables, such that for two subsequent syllables, it is not the case that the first one ends with a vowel and the second one starts with a vowel.
+	
+A syllable is
+	- a vowel;
+	- or one or two consonants followed by a vowel;
+	- or a consonant, a vowel and a consonant;
+	- or a vowel followed by one or two consonants.
+i.e., V, (C)CV, CVC, VC(C).
+
+
+A memorable password follows this grammar:
+
+PASS := WORD ((PUNC | NUMB)+ WORD)
+WORD := SYLL+
+SYLL := VOWE | CONS? CONS VOWE | CONS VOWE CONS | VOWE CONS CONS?
