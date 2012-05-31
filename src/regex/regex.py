@@ -14,18 +14,11 @@ class Regex():
 		)
 	)
 	"""
-	
-	# Regex types
-	CONCAT, CHOICE, REPEAT, RANGE = range(4)
-	
-	def __init__(self, regtype):
-		self.type = regtype
 		
 
 class Concat(Regex):
 	
 	def __init__(self, left, right):
-		super().__init__(Regex.CONCAT)
 		self.left = left
 		self.right = right
 		
@@ -36,7 +29,6 @@ class Concat(Regex):
 class Choice(Regex):
 
 	def __init__(self, left, right):
-		super().__init__(Regex.CHOICE)
 		self.left = left
 		self.right = right
 		
@@ -47,7 +39,6 @@ class Choice(Regex):
 class Repeat(Regex):
 	
 	def __init__(self, child):
-		super().__init__(Regex.REPEAT)
 		self.child = child
 	
 	def __str__(self):
@@ -57,7 +48,6 @@ class Repeat(Regex):
 class Range(Regex):
 	
 	def __init__(self, regrange):
-		super().__init__(Regex.RANGE)
 		self.range = regrange
 		
 	def __str__(self):
