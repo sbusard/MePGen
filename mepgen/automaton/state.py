@@ -1,3 +1,6 @@
+# Lambda character
+LAMBDA = '<lambda>'
+
 class State:
 	"""
 	A State represents a state of an automaton.
@@ -16,11 +19,8 @@ class State:
 	30 - 05 - 2012
 	"""
 	
-	# Lambda character
-	LAMBDA = '<lambda>'
-	
-	def __init__(self, successors = {}):
-		self.successors = successors
+	def __init__(self, successors = None):
+		self.successors = successors or {}
 		
 	def add_successor(self, char, succ):
 		"""
@@ -41,4 +41,9 @@ class State:
 			self.successors[char].remove(succ)
 			
 	def __str__(self):
-		# TODO
+		rep = "state("
+		for k in self.successors:
+			rep = rep + "{" + str(k) + ":" + \
+					",".join([repr(s) for s in self.successors[k]]) + "}"
+		rep = rep + ")"
+		return rep

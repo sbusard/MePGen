@@ -2,11 +2,11 @@ def minimize(automaton):
 	"""
 	Returns the minimization of automaton.
 	"""
-	# TODO
+	pass # TODO
 	
 	
 def determinize(automaton):
 	"""
 	Returns the determinization of automaton.
 	"""
-	# TODO
+	pass # TODO
