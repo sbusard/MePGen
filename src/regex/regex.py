@@ -15,7 +15,8 @@ class Regex():
 	)
 	"""
 	
-	# TODO How to define an enum type?
+	# Regex types
+	CONCAT, CHOICE, REPEAT, RANGE = range(4)
 	
 	def __init__(self, type, left = None, right = None, range = None):
 		self.type = type

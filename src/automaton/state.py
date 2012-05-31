@@ -16,7 +16,8 @@ class State:
 	30 - 05 - 2012
 	"""
 	
-	# TODO Define lambda character
+	# Lambda character
+	LAMBDA = '<lambda>'
 	
 	def __init__(self, successors = {}):
 		self.successors = successors
