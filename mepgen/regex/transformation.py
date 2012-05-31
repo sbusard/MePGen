@@ -39,7 +39,7 @@ def regex_to_automaton(regex):
 		# Add an initial accepting state with lamda transition
 		# to all child initial ones
 		# Add a lambda transition from all accepting to the initial state
-		# The new automaton has one initial acceptin state, the new one
+		# The new automaton has one initial accepting state, the new one
 		c = regex_to_automaton(regex.child)
 		
 		s0 = State()
@@ -49,7 +49,7 @@ def regex_to_automaton(regex):
 		for s in c.accepting:
 			s.add_successor(LAMBDA, s0)
 			
-		return Automaton(set([s0]), None)
+		return Automaton(set([s0]), set([s0]))
 		
 	if type(regex) == Concat:
 		# Add an intermediate state leading through lambda to all initial states
