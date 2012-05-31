@@ -15,8 +15,13 @@ class Regex():
 	)
 	"""
 	
+	# TODO How to define an enum type?
+	
 	def __init__(self, type, left = None, right = None, range = None):
 		self.type = type
 		self.left = left
 		self.right = right
 		self.range = range
+		
+	def __str__(self):
+		# TODO

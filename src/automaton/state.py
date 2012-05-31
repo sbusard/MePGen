@@ -16,6 +16,8 @@ class State:
 	30 - 05 - 2012
 	"""
 	
+	# TODO Define lambda character
+	
 	def __init__(self, successors = {}):
 		self.successors = successors
 		
@@ -36,3 +38,6 @@ class State:
 		"""
 		if succ in self.successors[char]:
 			self.successors[char].remove(succ)
+			
+	def __str__(self):
+		# TODO

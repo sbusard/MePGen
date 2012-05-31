@@ -13,3 +13,6 @@ class Automaton:
 	def __init__(self, initials = [], accepting = []):
 		self.initials = initials
 		self.accepting = accepting
+		
+	def __str__(self):
+		# TODO
