@@ -1,4 +1,4 @@
-from .state import LAMBDA
+from .state import LAMBDA, State
 
 class Automaton:
 	"""
@@ -16,8 +16,10 @@ class Automaton:
 		self.initial = initial
 		self.accepting = accepting or set()
 		
+		
 	def __str__(self):
 		pass # TODO
+		
 		
 	def accepts(self, word):
 		"""
@@ -67,6 +69,7 @@ class Automaton:
 		
 		return False
 		
+		
 	def is_deterministic(self):
 		"""
 		Returns whether this automaton is deterministic.
@@ -83,13 +86,56 @@ class Automaton:
 		visited = set()
 		
 		while len(pending) > 0:
-			s0 = pending.pop()
+			s0 = pending.pop()			
+			visited.add(s0)
 			for char in s0.successors:
 				if len(s0.successors[char]) > 1:
 					return False
 				for s in s0.successors[char]:
 					if s not in visited:
 						pending.append(s)
-			visited.add(s0)
 			
 		return True
+		
+	def copy(self):
+		"""
+		Returns a new automaton, composed of new states, that is a copy
+		of this automaton.
+		"""
+		
+		# Get all states
+		# Copy them
+		# Copy transitions
+		# Get accepting states
+		# Return automaton
+		
+		# Get all states
+		visited = set()
+		pending = [self.initial]
+		
+		while len(pending) > 0:
+			s = pending.pop()
+			visited.add(s)
+			for char in s.successors:
+				for sp in s.successors[char]:
+					if sp not in visited:
+						pending.append(sp)
+						
+		# Copy states
+		copies = {}
+		for s in visited:
+			copies[s] = State()
+			
+		# Copy transitions
+		for s in visited:
+			for char in s.successors:
+				for sp in s.successors[char]:
+					copies[s].add_successor(char, copies[sp])
+					
+		# Get accepting states
+		accepting = set()
+		for s in visited:
+			if s in self.accepting:
+				accepting.add(copies[s])
+				
+		return Automaton(copies[self.initial], accepting)	
