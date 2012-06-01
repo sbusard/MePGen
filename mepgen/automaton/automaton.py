@@ -3,17 +3,17 @@ from .state import LAMBDA
 class Automaton:
 	"""
 	An Automaton represents an automaton. It is composed of states and a
-	transition relation over an alphabet. Furthermore, a subset of states are
-	the initial ones and another subset are the accepting ones.
+	transition relation over an alphabet. Furthermore, a state is
+	the initial one and a subset of the states are the accepting ones.
 	
-	An Automaton stores the sets of initial and accepting states.
+	An Automaton stores the initial state and the set of accepting states.
 	
 	Simon Busard <simon.busard@gmail.com>
 	30 - 05 - 2012
 	"""
 	
-	def __init__(self, initials = None, accepting = None):
-		self.initials = initials or set()
+	def __init__(self, initial, accepting = None):
+		self.initial = initial
 		self.accepting = accepting or set()
 		
 	def __str__(self):
@@ -27,10 +27,9 @@ class Automaton:
 		"""
 		
 		# To check whether word is accepted:
-		# check if there is an accepting run from any initial state for word
-		for s0 in self.initials:
-			if self._accepts(word, s0, []):
-				return True
+		# check if there is an accepting run from the initial state for word
+		if self._accepts(word, self.initial, []):
+			return True
 		return False
 		
 	def _accepts(self, word, start, lambdas):
@@ -67,3 +66,30 @@ class Automaton:
 					return True
 		
 		return False
+		
+	def is_deterministic(self):
+		"""
+		Returns whether this automaton is deterministic.
+		
+		An automaton is deterministic iff for each state, there is at most
+		one successor for each character.
+		"""
+		
+		# Maintain two structures:
+		# 	- one stack to perform the search (here, BFS)
+		#	- one set to store visited states
+		
+		pending = [self.initial]
+		visited = set()
+		
+		while len(pending) > 0:
+			s0 = pending.pop()
+			for char in s0.successors:
+				if len(s0.successors[char]) > 1:
+					return False
+				for s in s0.successors[char]:
+					if s not in visited:
+						pending.append(s)
+			visited.add(s0)
+			
+		return True
