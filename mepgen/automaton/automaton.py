@@ -28,45 +28,45 @@ class Automaton:
 		it accepts word iff there is a run that accepts word.
 		"""
 		
+		def _accepts(word, start, lambdas):
+			"""
+			Recursive run of this automaton from the state start, for word.
+			lambdas is the set of states already visited when traversing
+			a LAMBDA transition.
+			"""
+
+			# To check whether this automaton accepts word from start,
+			# the word is accepted if
+			#	- the word is empty and start is accepting, or
+			#	- the word is emtpy and accepted by any state reachable
+			#		through a lambda transition that is not in lambdas, or
+			#	- the word without its first character is accepted 
+			#		by a state reachable through a transition labeled
+			#		with its first character, or
+			#	- the word is accepted by a state reachable through a lambda
+			#		transition that is not in lambdas.
+			# the word is not accepted otherwise
+
+			if word == '':
+				if start in self.accepting:
+					return True
+			else:
+				if word[0] in start.successors:
+					for s in start.successors[word[0]]:
+						if _accepts(word[1:], s, []):
+							return True
+			if LAMBDA in start.successors:
+				for s in [x for x in start.successors[LAMBDA] \
+							if x not in lambdas]:
+					if _accepts(word, s, lambdas + [start]):
+						return True
+
+			return False
+		
 		# To check whether word is accepted:
 		# check if there is an accepting run from the initial state for word
-		if self._accepts(word, self.initial, []):
+		if _accepts(word, self.initial, []):
 			return True
-		return False
-		
-	def _accepts(self, word, start, lambdas):
-		"""
-		Recursive run of this automaton from the state start, for word.
-		lambdas is the set of states already visited when traversing
-		a LAMBDA transition.
-		"""
-		
-		# To check whether this automaton accepts word from start,
-		# the word is accepted if
-		#	- the word is empty and start is accepting, or
-		#	- the word is emtpy and accepted by any state reachable
-		#		through a lambda transition that is not in lambdas, or
-		#	- the word without its first character is accepted 
-		#		by a state reachable through a transition labeled
-		#		with its first character, or
-		#	- the word is accepted by a state reachable through a lambda
-		#		transition that is not in lambdas.
-		# the word is not accepted otherwise
-		
-		if word == '':
-			if start in self.accepting:
-				return True
-		else:
-			if word[0] in start.successors:
-				for s in start.successors[word[0]]:
-					if self._accepts(word[1:], s, []):
-						return True
-		if LAMBDA in start.successors:
-			for s in [x for x in start.successors[LAMBDA] \
-						if x not in lambdas]:
-				if self._accepts(word, s, lambdas + [start]):
-					return True
-		
 		return False
 		
 		
