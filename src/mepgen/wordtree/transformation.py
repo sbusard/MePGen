@@ -1,7 +1,3 @@
-def automaton_to_wordtree(automaton):
-	pass # TODO
-	
-
 def remove_empty_subtrees(wordtree):
 	"""
 	Returns a copy of wordtree where all subtrees of wordtree

@@ -143,4 +143,7 @@ def remove_lambdas(automaton):
 			del s0.successors[LAMBDA]
 		
 	return automaton
-		
+
+
+def automaton_to_wordtree(automaton):
+	pass # TODO
