@@ -138,17 +138,7 @@ def remove_lambdas(automaton):
 			for s in s0.successors[c]:
 				if s not in visited | set(pending):
 					pending.append(s)
-				
-	pending = [automaton.initial]
-	visited = set()
-	while len(pending) > 0:
-		s0 = pending.pop()
-		visited.add(s0)
-		
-		for c in s0.successors:
-			for s in [s for s in s0.successors[c] if s not in visited]:
-				pending.append(s)
-				
+					
 		if LAMBDA in s0.successors:
 			del s0.successors[LAMBDA]
 		
