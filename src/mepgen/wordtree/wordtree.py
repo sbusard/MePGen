@@ -26,10 +26,18 @@ class Wordtree:
 		self.wordscount = accepting and 1 or 0
 		for ranges in successors:
 			self.wordscount += len(ranges) * successors[ranges].wordscount
+		
 			
 	def __str__(self):
 		pass # TODO
 		
-	def copy(self):
-		pass # TODO
 		
+	def copy(self):
+		if len(successors) <= 0:
+			return Wordtree({}, self.accepting)
+		
+		else:
+			successors = {}
+			for ranges in self.successors:
+				successors[ranges] = self.successors[ranges].copy()
+			return Wordtree(successors, self.accepting)
