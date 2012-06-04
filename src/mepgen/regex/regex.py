@@ -25,6 +25,9 @@ class Concat(Regex):
 	def __str__(self):
 		return "(" + str(self.left) + " . " + str(self.right) + ")"
 		
+	def copy(self):
+		return Concat(self.left.copy(), self.right.copy())
+		
 
 class Choice(Regex):
 
@@ -35,6 +38,9 @@ class Choice(Regex):
 	def __str__(self):
 		return "(" + str(self.left) + " | " + str(self.right) + ")"
 		
+	def copy(self):
+		return Concat(self.left.copy(), self.right.copy())
+		
 		
 class Repeat(Regex):
 	
@@ -43,6 +49,9 @@ class Repeat(Regex):
 	
 	def __str__(self):
 		return "(" + str(self.child) + ")*"
+		
+	def copy(self):
+		return Concat(self.child.copy())
 
 
 class Range(Regex):
@@ -52,3 +61,6 @@ class Range(Regex):
 		
 	def __str__(self):
 		return "[" + str(self.range) + "]"
+		
+	def copy(self):
+		return Range(self.range)
