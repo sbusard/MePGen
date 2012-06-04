@@ -41,3 +41,24 @@ class Wordtree:
 			for ranges in self.successors:
 				successors[ranges] = self.successors[ranges].copy()
 			return Wordtree(successors, self.accepting)
+			
+			
+	def accepts(self, word):
+		"""
+		Returns whether the given word is accepted by this wordtree.
+		
+		A word is accepted iff there is a run this tree that accepts the word.
+		A run accepts the word if it ends in an accepting state.
+		"""
+		
+		if word == '':
+			return self.accepting
+			
+		else:
+			for ranges in self.successors:
+				if word[0] in ranges:
+					if self.successors[ranges].accepts(word[1:]):
+						return True
+						
+		return False
+					
