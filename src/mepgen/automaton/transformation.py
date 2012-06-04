@@ -1,5 +1,6 @@
 from .state import LAMBDA, State
 from .automaton import Automaton
+from ..wordtree.wordtree import Wordtree
 
 def minimize(automaton):
 	"""
@@ -145,5 +146,49 @@ def remove_lambdas(automaton):
 	return automaton
 
 
-def automaton_to_wordtree(automaton):
-	pass # TODO
+def automaton_to_wordtree(automaton, depth):
+	"""
+	Returns the wordtree corresponding to the unrolling of automaton depth time.
+	This means that the resulting wordtree recognizes all words of length depth
+	that automaton recognizes.
+	The resulting wordtree can contain empty subtrees.
+	"""
+	
+	
+	def _automaton_to_wordtree(accepting, state, depth):
+		"""
+		Returns the wordtree corresponding to unrolling state depth time.
+		Uses accepting as the set of accepting states to correctly set as
+		accepting or not the created wordtree nodes.
+		"""
+	
+		# Generate the mapping range -> state
+		#	=> create a dictionary where keys are states, values are ranges
+		# For each state, get the sub-wordtree of depth-1
+		# Create the new wordtree with the correct ranges
+		
+		if depth <= 0:
+			return Wordtree({}, state in accepting)
+		
+		ranges = {}
+		states = set()
+		for c in state.successors:
+			for s in state.successors[c]:
+				states.add(s)
+				if s not in ranges:
+					ranges[s] = set()
+				ranges[s].add(c)
+				
+		successors = {}
+		for s in states:
+			successors[frozenset(ranges[s])] = \
+								_automaton_to_wordtree(accepting, s, depth-1)
+		return Wordtree(successors)
+		
+	
+	# Warning: only wordtree with depth 0 have to be accepting, and only if
+	# the corresponding state of automaton is accepting.
+	# This ensures to recognize only words of length depth instead of words
+	# of length at most depth.
+	
+	return _automaton_to_wordtree(automaton.accepting, automaton.initial, depth)
