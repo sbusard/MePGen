@@ -33,7 +33,7 @@ class Wordtree:
 		
 		
 	def copy(self):
-		if len(successors) <= 0:
+		if len(self.successors) <= 0:
 			return Wordtree({}, self.accepting)
 		
 		else:

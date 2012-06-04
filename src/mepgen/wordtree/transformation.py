@@ -20,9 +20,10 @@ def remove_empty_subtrees(wordtree):
 				_remove_empty_subtrees(wordtree.successors[ranges])
 		
 	
-	if wordree.wordscount == 0:
+	if wordtree.wordscount == 0:
 		return None
 		
 	wordtree = wordtree.copy()
 	_remove_empty_subtrees(wordtree)
+	return wordtree
 	
