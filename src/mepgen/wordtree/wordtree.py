@@ -1,3 +1,5 @@
+from random import random
+
 class Wordtree:
 	"""
 	A Wordtree is a tree recognizing a word.
@@ -61,4 +63,30 @@ class Wordtree:
 						return True
 						
 		return False
-					
+	
+	
+	def randomrun(self):
+		"""
+		Returns a random accepting run of this tree.
+		The result is a random word accepted by this tree.
+		This tree must accept at least one word.
+		"""
+		
+		# We have to select a possible next character
+		
+		if len(self.successors) <= 0:
+			return ''
+			
+		charcount = 0
+		bounds = {}
+		for ranges in self.successors:
+			bounds[(charcount,charcount + len(ranges))] = \
+			 	(ranges, self.successors[ranges])
+			charcount += len(ranges)
+		
+		charid = int(random() * charcount)
+		for (begin, end) in bounds:
+			if begin <= charid and charid < end:
+				char = list(bounds[(begin,end)][0])[charid-begin]
+				state = bounds[(begin,end)][1]
+				return char + state.randomrun()
