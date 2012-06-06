@@ -35,14 +35,32 @@ class Wordtree:
 		
 		
 	def copy(self):
-		if len(self.successors) <= 0:
-			return Wordtree({}, self.accepting)
+		# FIXME Seems buggy!
 		
-		else:
-			successors = {}
-			for ranges in self.successors:
-				successors[ranges] = self.successors[ranges].copy()
-			return Wordtree(successors, self.accepting)
+		def _copy(visited, wordtree):
+			"""
+			Copies the given wordtree by using visited as a dictionary of
+			already copied sub-wordtrees.
+			"""
+			
+			if len(wordtree.successors) <= 0:
+				wt = Wordtree({}, wordtree.accepting)
+				visited[wordtree] = wt
+				return wt
+
+			else:
+				successors = {}
+				for ranges in wordtree.successors:
+					wtr = wordtree.successors[ranges]
+					if wtr in visited:
+						successors[ranges] = visited[wtr]
+					else:
+						successors[ranges] = _copy(visited, wtr)
+				wt = Wordtree(successors, wordtree.accepting)
+				visited[wtr] = wt
+				return wt
+				
+		return _copy({}, self)		
 			
 			
 	def accepts(self, word):

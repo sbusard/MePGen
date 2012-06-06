@@ -64,7 +64,8 @@ def determinize(automaton):
 		for c in cc:
 			succs = set()
 			for s in ss:
-				succs = succs | s.successors[c]
+				if c in s.successors:
+					succs = succs | s.successors[c]
 			succs = frozenset(succs)
 			if succs not in mapping:
 				mapping[succs] = State()
@@ -162,6 +163,7 @@ def automaton_to_wordtree(automaton, depth):
 		accepting or not the created wordtree nodes.
 		built is a dictionary of (state, depth) to wordtree, used to save memory
 		by reusing built wordtrees.
+		The corresponding wordtree has no empty subtrees.
 		"""
 	
 		# Generate the mapping range -> state
@@ -183,12 +185,12 @@ def automaton_to_wordtree(automaton, depth):
 				
 		successors = {}
 		for s in states:
-			if (s, depth-1) in built:
+			if (s, depth-1) in built and built[(s, depth-1)].wordscount > 0:
 				successors[frozenset(ranges[s])] = built[(s, depth-1)]
 			else:
-				successors[frozenset(ranges[s])] = \
-								_automaton_to_wordtree(	built, accepting,
-														s, depth-1)
+				wt = _automaton_to_wordtree(built, accepting, s, depth-1)
+				if wt.wordscount > 0:
+					successors[frozenset(ranges[s])] = wt
 		wt = Wordtree(successors)
 		built[(state, depth)] = wt
 		return wt

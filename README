@@ -98,7 +98,7 @@ Proposed solution
 
 Let the regex of memorable passwords be
 
-PASS := WORD (SEPA WORD)*
+PASS := SEPA? WORD (SEPA WORD)* SEPA?
 SEPA := punc? digi+ punc? | punc? punc 
 WORD := SYLL+
 SYLL := cons? cons vowe | cons vowe cons | vowe cons cons?
