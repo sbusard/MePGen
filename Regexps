@@ -160,10 +160,47 @@ CV = Concat(Range(Cons), Range(Vowe))
 CCV = Concat(Range(Cons), CV)
 SYLL = Choice(CCV, CV)
 
-# Syll = CONS cons vowe | CONS vowe
+# Syll = CONS cons? vowe
 Ccv = Concat(Range(Cons), cv)
 Cv = Concat(Range(Cons), Range(vowe))
 Syll = Choice(Ccv, Cv)
+
+
+# WORD := SYLL+
+word = Concat(syll, Repeat(syll))
+Word = Concat(Syll, Repeat(syll))
+WORD = Concat(SYLL, Repeat(SYLL))
+
+fullWord = Choice(Choice(word, Word), WORD)
+
+
+# SEPA = digi | digi digi | punc
+sepa = Choice(Choice(Range(digi), Concat(Range(digi), Range(digi))), Range(punc))
+
+# PASS = WORD (SEPA WORD)*
+regex = Concat(fullWord, Repeat(Concat(sepa, fullWord)))
+
+
+
+================================================================================
+
+
+
+# Construct the regex
+# PASS := WORD (SEPA WORD)*
+# SEPA := digi digi? | punc
+# WORD := SYLL+
+# SYLL := cons vowe
+
+
+# SYLL := cons vowe
+syll = Concat(Range(cons), Range(vowe))
+
+# SYLL := CONS VOWE
+SYLL = Concat(Range(Cons), Range(Vowe))
+
+# Syll = CONS vowe
+Syll = Concat(Range(Cons), Range(vowe))
 
 
 # WORD := SYLL+

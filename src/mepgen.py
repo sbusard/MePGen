@@ -8,8 +8,8 @@ from mepgen.transformation import regex_to_wordtree
 # mepgen.py -s pwdsize (default: 16) -n pwdnumber (default: 10)
 
 parser = argparse.ArgumentParser(description="A memorable passwords generator")
-parser.add_argument('-s',dest="size",help="size of the generated passwords", default=16,type=int)
-parser.add_argument('-n',dest="count",help="number of generated passwords", default=10,type=int)
+parser.add_argument('-s',dest="size",help="size of the generated passwords (default: 16)", default=16,type=int)
+parser.add_argument('-n',dest="count",help="number of generated passwords (default: 10)", default=10,type=int)
 
 args = parser.parse_args()
 
@@ -48,7 +48,7 @@ CV = Concat(Range(Cons), Range(Vowe))
 CCV = Concat(Range(Cons), CV)
 SYLL = Choice(CCV, CV)
 
-# Syll = CONS cons vowe | CONS vowe
+# Syll = CONS cons? vowe
 Ccv = Concat(Range(Cons), cv)
 Cv = Concat(Range(Cons), Range(vowe))
 Syll = Choice(Ccv, Cv)
