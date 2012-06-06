@@ -1,0 +1,181 @@
+# Construct the regex
+# PASS := SEPA? WORD (SEPA WORD)* SEPA?
+# SEPA := punc? digi+ punc? | punc? punc 
+# WORD := SYLL+
+# SYLL := cons? cons vowe | cons vowe cons | vowe cons cons?
+
+
+# SYLL := cons? cons vowe | cons vowe cons | vowe cons cons?
+cv = Concat(Range(cons), Range(vowe))
+ccv = Concat(Range(cons), cv)
+vc = Concat(Range(vowe), Range(cons))
+cvc = Concat(cv, Range(cons))
+vcc = Concat(vc, Range(cons))
+# syll1 = cons? cons vowe
+syll1 = Choice(cv, ccv)
+# syll2 = cons vowe cons
+syll2 = cvc
+# syll3 = vowe cons cons?
+syll3 = Choice(vc, vcc)
+syll = Choice(Choice(syll1, syll2), syll3)
+
+# SYLL := CONS? CONS VOWE | CONS VOWE CONS | VOWE CONS CONS?
+CV = Concat(Range(Cons), Range(Vowe))
+CCV = Concat(Range(Cons), CV)
+VC = Concat(Range(Vowe), Range(Cons))
+CVC = Concat(CV, Range(Cons))
+VCC = Concat(VC, Range(Cons))
+# SYLL1 = CONS? CONS VOWE
+SYLL1 = Choice(CV, CCV)
+# SYLL2 = CONS VOWE CONS
+SYLL2 = CVC
+# SYLL3 = VOWE CONS CONS?
+SYLL3 = Choice(VC, VCC)
+SYLL = Choice(Choice(SYLL1, SYLL2), SYLL3)
+
+# Syll = CONS cons vowe | CONS vowe | CONS vowe cons | VOWE cons cons?
+Ccv = Concat(Range(Cons), cv)
+Cv = Concat(Range(Cons), Range(vowe))
+Cvc = Concat(Range(Cons), vc)
+Vc = Concat(Range(Vowe), Range(cons))
+Vcc = Concat(Vc, Range(cons))
+Syll = Choice(Choice(Ccv, Cv), Choice(Cvc, Choice(Vc, Vcc)))
+
+
+# WORD := SYLL+
+word = Concat(syll, Repeat(syll))
+Word = Concat(Syll, Repeat(syll))
+WORD = Concat(SYLL, Repeat(SYLL))
+
+fullWord = Choice(Choice(word, Word), WORD)
+
+
+# SEPA := punc? digi+ punc? | punc? punc
+# digp = digi+
+digp = Concat(Range(digi), Repeat(Range(digi)))
+# pd = punc digi+
+pd = Concat(Range(punc), digp)
+# dp = digi+ punc
+dp = Concat(digp, Range(punc))
+# pp = punc punc
+pp = Concat(Range(punc), Range(punc))
+pdp = Concat(Concat(Range(punc), Range(digi)), Range(punc))
+# SEPA = digi+ | punc digi+ | punc digi+ punc | digi+ punc | punc | punc punc
+sepa = Choice(Choice(Choice(digp, pd), pdp), Choice(Choice(dp, Range(punc)),pp))
+
+# PASS := SEPA? WORD (SEPA WORD)* SEPA?
+# swr = (SEPA WORD)*
+swr = Repeat(Concat(sepa, fullWord))
+# pass1 = SEPA WORD (SEPA WORD)*
+pass1 = Concat(Concat(sepa, fullWord), swr)
+# pass2 = SEPA WORD (SEPA WORD)* SEPA
+pass2 = Concat(pass1, sepa)
+# pass3 = WORD (SEPA WORD)*
+pass3 = Concat(fullWord, swr)
+# pass4 = WORD (SEPA WORD)* SEPA
+pass4 = Concat(pass3, sepa)
+# password = pass1 | pass2 | pass3 | pass4
+regex = Choice(Choice(pass1, pass2), Choice(pass3, pass4))
+
+
+================================================================================
+
+
+# Construct the regex
+# PASS := WORD (SEPA WORD)*
+# SEPA := digi digi? | punc
+# WORD := SYLL+
+# SYLL := cons? cons vowe | cons vowe cons | vowe cons cons?
+
+
+# SYLL := cons? cons vowe | cons vowe cons | vowe cons cons?
+cv = Concat(Range(cons), Range(vowe))
+ccv = Concat(Range(cons), cv)
+vc = Concat(Range(vowe), Range(cons))
+cvc = Concat(cv, Range(cons))
+vcc = Concat(vc, Range(cons))
+# syll1 = cons? cons vowe
+syll1 = Choice(cv, ccv)
+# syll2 = cons vowe cons
+syll2 = cvc
+# syll3 = vowe cons cons?
+syll3 = Choice(vc, vcc)
+syll = Choice(Choice(syll1, syll2), syll3)
+
+# SYLL := CONS? CONS VOWE | CONS VOWE CONS | VOWE CONS CONS?
+CV = Concat(Range(Cons), Range(Vowe))
+CCV = Concat(Range(Cons), CV)
+VC = Concat(Range(Vowe), Range(Cons))
+CVC = Concat(CV, Range(Cons))
+VCC = Concat(VC, Range(Cons))
+# SYLL1 = CONS? CONS VOWE
+SYLL1 = Choice(CV, CCV)
+# SYLL2 = CONS VOWE CONS
+SYLL2 = CVC
+# SYLL3 = VOWE CONS CONS?
+SYLL3 = Choice(VC, VCC)
+SYLL = Choice(Choice(SYLL1, SYLL2), SYLL3)
+
+# Syll = CONS cons vowe | CONS vowe | CONS vowe cons | VOWE cons cons?
+Ccv = Concat(Range(Cons), cv)
+Cv = Concat(Range(Cons), Range(vowe))
+Cvc = Concat(Range(Cons), vc)
+Vc = Concat(Range(Vowe), Range(cons))
+Vcc = Concat(Vc, Range(cons))
+Syll = Choice(Choice(Ccv, Cv), Choice(Cvc, Choice(Vc, Vcc)))
+
+
+# WORD := SYLL+
+word = Concat(syll, Repeat(syll))
+Word = Concat(Syll, Repeat(syll))
+WORD = Concat(SYLL, Repeat(SYLL))
+
+fullWord = Choice(Choice(word, Word), WORD)
+
+
+# SEPA = digi | digi digi | punc
+sepa = Choice(Choice(Range(digi), Concat(Range(digi), Range(digi))), Range(punc))
+
+# PASS = WORD (SEPA WORD)*
+regex = Concat(fullWord, Repeat(Concat(sepa, fullWord)))
+
+
+================================================================================
+
+
+# Construct the regex
+# PASS := WORD (SEPA WORD)*
+# SEPA := digi digi? | punc
+# WORD := SYLL+
+# SYLL := cons? cons vowe
+
+
+# SYLL := cons? cons vowe
+cv = Concat(Range(cons), Range(vowe))
+ccv = Concat(Range(cons), cv)
+syll = Choice(ccv, cv)
+
+# SYLL := CONS? CONS VOWE
+CV = Concat(Range(Cons), Range(Vowe))
+CCV = Concat(Range(Cons), CV)
+SYLL = Choice(CCV, CV)
+
+# Syll = CONS cons vowe | CONS vowe
+Ccv = Concat(Range(Cons), cv)
+Cv = Concat(Range(Cons), Range(vowe))
+Syll = Choice(Ccv, Cv)
+
+
+# WORD := SYLL+
+word = Concat(syll, Repeat(syll))
+Word = Concat(Syll, Repeat(syll))
+WORD = Concat(SYLL, Repeat(SYLL))
+
+fullWord = Choice(Choice(word, Word), WORD)
+
+
+# SEPA = digi | digi digi | punc
+sepa = Choice(Choice(Range(digi), Concat(Range(digi), Range(digi))), Range(punc))
+
+# PASS = WORD (SEPA WORD)*
+regex = Concat(fullWord, Repeat(Concat(sepa, fullWord)))
