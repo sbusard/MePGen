@@ -12,5 +12,8 @@ def regex_to_wordtree(regex, depth):
 	# Remove lambdas, determinize automaton
 	automaton = determinize(remove_lambdas(automaton))
 	# Get the tree, remove empty subtrees
-	wordtree = remove_empty_subtrees(automaton_to_wordtree(automaton, depth))
+	wordtree = automaton_to_wordtree(automaton, depth)
+	# Removing empty subtrees takes a lot of time and is not necessary
+	# since an empty subtree has probability 0 to be taken.
+	#wordtree = remove_empty_subtrees(wordtree)
 	return wordtree

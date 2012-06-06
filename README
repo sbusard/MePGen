@@ -116,3 +116,14 @@ Notes
 	- Removing lambda transitions is necessary since it is easier to count words of a given length without lambdas. It becomes more tricky (maybe impossible!) when there are lambda transitions.
 	- There is no need to minimize the automaton when it is determinized, we just need no lambda transitions. When it is determinized, there is only one path for a single word, so the word will be counted only once.
 	- We just need to build the automaton, remove lambda transitions, determinize it and then we can build the tree, count the words and generate words.
+	
+	
+Improvement
+-----------
+
+Even with small regex and ranges, it takes a long time and memory to compute passwords of length 16.
+ex: ([a] . [cbd]*)*
+The problem seems to lie in automaton_to_wordtree, that takes a lot of time in this case.
+A way to improve it is maybe to construct a BDD-like DAG to avoid explosion in memory (and maybe in time).
+This improvement seems to really speed up the process.
+There is still some computing time in removing empty subtrees. Is this step really needed? An empty subtree won't act in the computing of a word since the probability to take it is 0!

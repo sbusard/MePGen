@@ -155,11 +155,13 @@ def automaton_to_wordtree(automaton, depth):
 	"""
 	
 	
-	def _automaton_to_wordtree(accepting, state, depth):
+	def _automaton_to_wordtree(built, accepting, state, depth):
 		"""
 		Returns the wordtree corresponding to unrolling state depth time.
 		Uses accepting as the set of accepting states to correctly set as
 		accepting or not the created wordtree nodes.
+		built is a dictionary of (state, depth) to wordtree, used to save memory
+		by reusing built wordtrees.
 		"""
 	
 		# Generate the mapping range -> state
@@ -181,9 +183,15 @@ def automaton_to_wordtree(automaton, depth):
 				
 		successors = {}
 		for s in states:
-			successors[frozenset(ranges[s])] = \
-								_automaton_to_wordtree(accepting, s, depth-1)
-		return Wordtree(successors)
+			if (s, depth-1) in built:
+				successors[frozenset(ranges[s])] = built[(s, depth-1)]
+			else:
+				successors[frozenset(ranges[s])] = \
+								_automaton_to_wordtree(	built, accepting,
+														s, depth-1)
+		wt = Wordtree(successors)
+		built[(state, depth)] = wt
+		return wt
 		
 	
 	# Warning: only wordtree with depth 0 have to be accepting, and only if
@@ -191,4 +199,5 @@ def automaton_to_wordtree(automaton, depth):
 	# This ensures to recognize only words of length depth instead of words
 	# of length at most depth.
 	
-	return _automaton_to_wordtree(automaton.accepting, automaton.initial, depth)
+	return _automaton_to_wordtree(	{}, automaton.accepting,
+									automaton.initial, depth)

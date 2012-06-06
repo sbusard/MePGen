@@ -72,6 +72,9 @@ class Wordtree:
 		This tree must accept at least one word.
 		"""
 		
+		if self.wordscount <= 0:
+			print("[ERROR] Cannot produce a randomrun since no word is possible!")
+		
 		# We have to select a possible next character
 		
 		if len(self.successors) <= 0:
