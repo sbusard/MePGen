@@ -34,9 +34,7 @@ class Wordtree:
 		pass # TODO
 		
 		
-	def copy(self):
-		# FIXME Seems buggy!
-		
+	def copy(self):		
 		def _copy(visited, wordtree):
 			"""
 			Copies the given wordtree by using visited as a dictionary of
@@ -57,7 +55,7 @@ class Wordtree:
 					else:
 						successors[ranges] = _copy(visited, wtr)
 				wt = Wordtree(successors, wordtree.accepting)
-				visited[wtr] = wt
+				visited[wordtree] = wt
 				return wt
 				
 		return _copy({}, self)		

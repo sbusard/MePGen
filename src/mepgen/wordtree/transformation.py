@@ -1,3 +1,5 @@
+from .wordtree import Wordtree
+
 def remove_empty_subtrees(wordtree):
 	"""
 	Returns a copy of wordtree where all subtrees of wordtree
@@ -7,29 +9,29 @@ def remove_empty_subtrees(wordtree):
 	
 	def _remove_empty_subtrees(visited, wordtree):
 		"""
-		Returns empty substrees of wordtree, i.e. subtrees that recognize no
+		Removes empty substrees of wordtree, i.e. subtrees that recognize no
 		words.
 		wordtree is modified in place.
 		wordtree must recognize some words.
-		visited is the set of wordtree already emptied
+		visited is a dictionary from wordtree nodes to their copy without
+		empty subtrees.
 		"""
-		
-		# FIXME Seems buggy!
 		
 		succs = {}
 		for ranges in wordtree.successors:
-			if wordtree.successors[ranges].wordscount > 0:
-				if wordtree.successors[ranges] not in visited:
-					visited.add(wordtree.successors[ranges])
-					succs[ranges] = wordtree.successors[ranges]
-					_remove_empty_subtrees(visited, succs[ranges])
-		wordtree.successors = succs
+			wt = wordtree.successors[ranges]
+			if wt.wordscount != 0:
+				if wt in visited:
+					succs[ranges] = visited[wt]
+				else:
+					succs[ranges] = _remove_empty_subtrees(visited, wt)
+		w = Wordtree(succs, wordtree.accepting)
+		visited[wordtree] = w
+		return w
 		
 	
 	if wordtree.wordscount == 0:
 		return None
 
-	wordtree = wordtree.copy()
-	_remove_empty_subtrees(set(), wordtree)
-	return wordtree
+	return _remove_empty_subtrees({}, wordtree)
 	

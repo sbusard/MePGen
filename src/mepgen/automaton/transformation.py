@@ -163,7 +163,6 @@ def automaton_to_wordtree(automaton, depth):
 		accepting or not the created wordtree nodes.
 		built is a dictionary of (state, depth) to wordtree, used to save memory
 		by reusing built wordtrees.
-		The corresponding wordtree has no empty subtrees.
 		"""
 	
 		# Generate the mapping range -> state
@@ -185,12 +184,12 @@ def automaton_to_wordtree(automaton, depth):
 				
 		successors = {}
 		for s in states:
-			if (s, depth-1) in built and built[(s, depth-1)].wordscount > 0:
+			if (s, depth-1) in built:
 				successors[frozenset(ranges[s])] = built[(s, depth-1)]
 			else:
-				wt = _automaton_to_wordtree(built, accepting, s, depth-1)
-				if wt.wordscount > 0:
-					successors[frozenset(ranges[s])] = wt
+				successors[frozenset(ranges[s])] = \
+								_automaton_to_wordtree(	built, accepting,
+														s, depth-1)
 		wt = Wordtree(successors)
 		built[(state, depth)] = wt
 		return wt
