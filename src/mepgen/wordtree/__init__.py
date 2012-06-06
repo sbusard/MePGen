@@ -1,1 +1,1 @@
-__all__ = ['wordtree']
+__all__ = ['wordtree', 'transformation']
