@@ -32,41 +32,119 @@ extpunc = '@&"\'(§!)-^$`,;:=<#°_¨*%£?./+>•“‘{¶«¡ø}—€@∞…
 
 
 # Construct the regex
-# PASS := WORD (SEPA WORD)*
-# SEPA := digi digi? | punc
-# WORD := SYLL+
-# SYLL := cons? cons vowe
+# PASS := SEPA? WORD (SEPA WORD)* SEPA?
+# SEPA := punc? digi digi? punc? | punc
+# WORD := SYLL SYLL+
+# SYLL := GCON GVOW
+# GVOW := vowe [hmn]? | vowe vowe
+# GCON := /* generated from gconbase */
+
+gconbase = {
+	'b': 'fhjlmnprsvwz',
+	'c': 'cfhklmnrsvwxz',
+	'd': 'dhjlmnrstwz',
+	'f': 'fhlmnrvw',
+	'g': 'fghlmnrstwz',
+	'h': 'bcdfghjklmnpqrstvwxz',
+	'j': 'fghjlmnrtvw',
+	'k': 'cfhklmnrsvwxz',
+	'l': 'bcdfghjklmnpqrstvwxz',
+	'm': 'bcdfghjklmnpqrstvwxz',
+	'n': 'bcdfghjklmnpqrstvwxz',
+	'p': 'fhjlmnprsvwz',
+	'q': 'cfhklmnrsvwxz',
+	'r': 'bcdfghjklmnpqrstvwxz',
+	's': 'cfghklmnpqrsvwz',
+	't': 'dhjlmnrstwz',
+	'v': 'fhlmnrvw',
+	'w': 'hw',
+	'x': 'hsxz',
+	'z': 'cfghklmnpqrsvwz'
+}
+
+def generate_regex_from_dict(chardict):
+	"""
+	Generates the regex corresponding to the association in chardict.
+	chardict is a dictionary where keys are single characters and values are
+	characters ranges.
+	"""
+	
+	def _generate_choice_regex_from_list(reglist):
+		"""
+		Generates a regex made of choices, corresponding to the choices to
+		take one regex of reglist.
+		reglist is a list of regex, and every element is uniquely present in it.
+		reglist is not empty.
+		"""
+		
+		if len(reglist) == 1:
+			return reglist[0]
+			
+		else:
+			left = reglist[:int(len(reglist) / 2)]
+			right = reglist[int(len(reglist) / 2):]
+			lreg = _generate_choice_regex_from_list(left)
+			rreg = _generate_choice_regex_from_list(right)
+			return Choice(lreg, rreg)
+	
+	conslist = []
+	for char in chardict:
+		ranges = [Range(c) for c in chardict[char]]
+		choices = _generate_choice_regex_from_list(ranges)
+		conslist.append(Choice(Range(char), Concat(Range(char), choices)))
+		
+	return _generate_choice_regex_from_list(conslist)
+	
+	
+gcon = generate_regex_from_dict(gconbase)
+		
+
+# gvow := vowe [hmnw]? | vowe vowe
+gvow = Choice(
+			Choice(
+				Concat(
+					Range(vowe),
+					Range('hmnw')
+				),
+				Range(vowe)
+			),
+			Concat(
+				Range(vowe),
+				Range(vowe)
+			)
+		)
+
+#syll = Concat(Range(cons), Range(vowe))
+#SYLL = Concat(Range(Cons), Range(Vowe))
+#Syll = Concat(Range(Cons), Range(vowe))
+
+syll = Concat(gcon, gvow)
 
 
-# SYLL := cons? cons vowe
-cv = Concat(Range(cons), Range(vowe))
-ccv = Concat(Range(cons), cv)
-syll = Choice(ccv, cv)
+# WORD := SYLL SYLL+
+#word = Concat(syll, Concat(syll, Repeat(syll)))
+#Word = Concat(Syll, Concat(syll, Repeat(syll)))
+#WORD = Concat(SYLL, Concat(SYLL, Repeat(SYLL)))
 
-# SYLL := CONS? CONS VOWE
-CV = Concat(Range(Cons), Range(Vowe))
-CCV = Concat(Range(Cons), CV)
-SYLL = Choice(CCV, CV)
+#fullWord = Choice(Choice(word, Word), WORD)
 
-# Syll = CONS cons? vowe
-Ccv = Concat(Range(Cons), cv)
-Cv = Concat(Range(Cons), Range(vowe))
-Syll = Choice(Ccv, Cv)
+fullWord = Concat(syll, Choice(syll, Concat(syll, Repeat(syll))))
 
 
-# WORD := SYLL+
-word = Concat(syll, Repeat(syll))
-Word = Concat(Syll, Repeat(syll))
-WORD = Concat(SYLL, Repeat(SYLL))
+# SEPA := punc? digi digi? punc? | punc
+dd = Concat(Range(digi), Range(digi))
+dde = Choice(Range(digi), dd)
+pedde = Choice(dde, Concat(Range(punc), dde))
+peddepe = Choice(pedde, Concat(pedde, Range(punc)))
+sepa = Choice(peddepe, Range(punc))
 
-fullWord = Choice(Choice(word, Word), WORD)
+# PASS := SEPA? WORD (SEPA WORD)* SEPA?
+sws = Repeat(Concat(sepa, fullWord))
+wsws = Concat(fullWord, sws)
+sewsws = Choice(Concat(sepa, wsws), wsws)
+sewswsse = Choice(sewsws, Concat(sewsws, sepa))
 
-
-# SEPA = digi | digi digi | punc
-sepa = Choice(Choice(Range(digi), Concat(Range(digi), Range(digi))), Range(punc))
-
-# PASS = WORD (SEPA WORD)*
-regex = Concat(fullWord, Repeat(Concat(sepa, fullWord)))
+regex = sewswsse
 
 
 # Get wordtree
