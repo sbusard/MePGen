@@ -127,3 +127,13 @@ The problem seems to lie in automaton_to_wordtree, that takes a lot of time in t
 A way to improve it is maybe to construct a BDD-like DAG to avoid explosion in memory (and maybe in time).
 This improvement seems to really speed up the process.
 There is still some computing time in removing empty subtrees. Is this step really needed? An empty subtree won't act in the computing of a word since the probability to take it is 0!
+
+
+New idea
+--------
+
+Find probably usefull letter associations by analyzing a given text. From the text, count for each character the set of possible next ones, and define probabilities of following characters. Then, by fixing a bound on these probabilities, fix the next possible characters.
+
+Is this solution interesting? If 's' can follow 't' and 'h' can follow 's' and 'r' can follow 'h', we can construct 'tshr', while we don't want to. Maybe by using a sufficiently high bound, we can avoid these?
+
+Furthermore, does this system can still provide sufficiently large set of words?
