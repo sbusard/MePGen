@@ -137,3 +137,7 @@ Find probably usefull letter associations by analyzing a given text. From the te
 Is this solution interesting? If 's' can follow 't' and 'h' can follow 's' and 'r' can follow 'h', we can construct 'tshr', while we don't want to. Maybe by using a sufficiently high bound, we can avoid these?
 
 Furthermore, does this system can still provide sufficiently large set of words?
+
+
+A variant could be to extract from the given text all the syllables of the text
+and produce words exclusively composed of these syllables.
