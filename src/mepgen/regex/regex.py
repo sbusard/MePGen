@@ -64,3 +64,18 @@ class Range(Regex):
 		
 	def copy(self):
 		return Range(self.range)
+		
+		
+class Custom(Regex):
+	"""
+	Custom regex is a regex defined by an automaton.
+	"""
+	
+	def __init__(self, automaton):
+		self.automaton = automaton
+		
+	def __str__(self):
+		return "Custom(" + str(self.automaton) + ")"
+	
+	def copy(self):
+		return Custom(self.automaton.copy())

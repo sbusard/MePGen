@@ -1,4 +1,4 @@
-from .regex import Concat, Choice, Repeat, Range
+from .regex import Concat, Choice, Repeat, Range, Custom
 from ..automaton.automaton import Automaton
 from ..automaton.state import State, LAMBDA
 
@@ -65,3 +65,7 @@ def regex_to_automaton(regex):
 		s0.add_successor(LAMBDA, r.initial)
 			
 		return Automaton(l.initial, r.accepting)
+		
+	if type(regex) == Custom:
+		# Take a copy of the automaton and return it
+		return regex.automaton.copy()
