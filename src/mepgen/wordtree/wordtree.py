@@ -92,20 +92,35 @@ class Wordtree:
 			print("[ERROR] Cannot produce a randomrun since no word is possible!")
 		
 		# We have to select a possible next character
+		# First, select a range, based on number of words for successors
+		# Then, in the selected range, select uniformly the next character
 		
 		if len(self.successors) <= 0:
 			return ''
 			
-		charcount = 0
+		# Select the range:
+		# we have to select a range r_i
+		# of n_i characters to a state of m_i characters
+		# with a probability of n_i * m_i / sum_j(n_j * m_j)
+		
+		# to select a range with the specified probability,
+		# save for each range, two bounds, (last-bound, last-bound + n_i*m_i)
+		# then select between 0 and last-bound, and select the range
+		# surrounding the value
+		
+		lastbound = 0
 		bounds = {}
 		for ranges in self.successors:
-			bounds[(charcount,charcount + len(ranges))] = \
-			 	(ranges, self.successors[ranges])
-			charcount += len(ranges)
+			newbound=lastbound+self.successors[ranges].wordscount*len(ranges)
+			bounds[(lastbound,newbound)] = (ranges, self.successors[ranges])
+			lastbound = newbound
+			
+		ranid = int(random() * lastbound)
 		
-		charid = int(random() * charcount)
-		for (begin, end) in bounds:
-			if begin <= charid and charid < end:
-				char = list(bounds[(begin,end)][0])[charid-begin]
-				state = bounds[(begin,end)][1]
-				return char + state.randomrun()
+		for (beg, end) in bounds:
+			if beg <= ranid and ranid < end:
+				ran, state = bounds[(beg, end)]
+				# Select the character:
+				# the next character is uniformly selected in the selected range
+				charid = int(random() * len(ran))
+				return list(ran)[charid] + state.randomrun()
