@@ -1,6 +1,8 @@
 from .regex import Concat, Choice, Repeat, Range, Custom
 from ..automaton.automaton import Automaton
 from ..automaton.state import State, LAMBDA
+from ..automaton.transformation import remove_lambdas, determinize, automaton_to_wordtree
+from ..wordtree.transformation import remove_empty_subtrees
 
 def regex_to_automaton(regex):
 	"""
@@ -69,3 +71,20 @@ def regex_to_automaton(regex):
 	if type(regex) == Custom:
 		# Take a copy of the automaton and return it
 		return regex.automaton.copy()
+		
+		
+def regex_to_wordtree(regex, depth):
+	"""
+	Returns the wordtree of depth depth recognizing words of length depth
+	recognized by regex.
+	"""
+	
+	# Transform regex to automaton
+	automaton = regex_to_automaton(regex)
+	# Remove lambdas, determinize automaton
+	automaton = remove_lambdas(automaton)
+	automaton = determinize(automaton)
+	# Get the tree, remove empty subtrees
+	wordtree = automaton_to_wordtree(automaton, depth)
+	wordtree = remove_empty_subtrees(wordtree)
+	return wordtree
