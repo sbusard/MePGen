@@ -8,8 +8,9 @@ def text_to_matrix(text, charfilter=None):
 	character, such that the (i,j) value of the matrix is the number of times
 	character i is followed by character j in the given text.
 	If charfilter is not None, it is used as a filter for allowed characters.
-	charfilter is then a string and every character is this string encountered
-	in the text will be taken into account. The other chars are ignored. 
+	charfilter is then a function taking one character as argument and returning
+	a boolean saying whether or not the character has to be taken into account
+	or not.
 	
 	The returned matrix is a dictionary where keys are characters and values
 	are dictionaries. The inner dictionary has characters as keys
@@ -36,7 +37,7 @@ def text_to_matrix(text, charfilter=None):
 
 	for i in range(len(text) - 1):
 		if charfilter == None or \
-		   (text[i] in charfilter and text[i + 1] in charfilter):
+		   (charfilter(text[i]) and charfilter(text[i + 1])):
 			_inc_value(matrix, text[i], text[i + 1])
 			
 	return matrix
@@ -149,6 +150,13 @@ def successors_to_automaton(successors):
 		
 
 def text_to_automaton(text, charfilter, threshold):
+	"""
+	Returns the automaton accepting all words of any length > 0 such that
+	every character c of the word appears in text and charfilter(c) is True.
+	threshold is used to eliminate the too rare following characters, i.e.
+	for each character c of text, it can be followed in accepting words only
+	by characters that occur after c at least (threshold * 100)% of the time.
+	"""
 
 	matrix = text_to_matrix(text, charfilter)
 	matrix = threshold_matrix(matrix, threshold)
