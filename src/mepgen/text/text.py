@@ -147,3 +147,10 @@ def successors_to_automaton(successors):
 			
 	return Automaton(s0, allstates)
 		
+
+def text_to_automaton(text, charfilter, threshold):
+
+	matrix = text_to_matrix(text, charfilter)
+	matrix = threshold_matrix(matrix, threshold)
+	succs = extract_successors(matrix)
+	return successors_to_automaton(succs)
