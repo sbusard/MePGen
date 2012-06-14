@@ -106,6 +106,7 @@ def extract_successors(matrix):
 		for c2 in matrix[c1]:
 			successors[c1].add(c2)
 	return successors
+	
 
 def successors_to_automaton(successors):
 	"""
