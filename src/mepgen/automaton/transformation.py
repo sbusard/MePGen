@@ -202,3 +202,59 @@ def automaton_to_wordtree(automaton, depth):
 	
 	return _automaton_to_wordtree(	{}, automaton.accepting,
 									automaton.initial, depth)
+									
+									
+def reject_short_words(automaton, minlen):
+	"""
+	Returns a copy of automaton that accepts the set of words that automaton
+	accepts and have a length >= minlen.
+	automaton must contain no lambda transitions.
+	
+	This function introduces lambda transitions into the returned automaton.
+	"""
+	
+	# Create an automaton that is an unrolling of automaton to minlen,
+	# set the end states as accepting
+	# and add a lambda transition from all these states to the initial state
+	# of the copy of the original automaton.
+	
+	# Starts with a copy of automaton.initial
+	s0 = State()
+	currentStage = {s0 : automaton.initial}
+	currentCopy = {automaton.initial : s0}
+	nextStage = {}
+	
+	# For each stage
+	for i in range(minlen):
+		# For each unrolled state, get its corresponding state of automaton
+		for s in currentStage:
+			for c in currentStage[s].successors:
+				for sp in currentStage[s].successors[c]:
+					# unroll it, i.e.
+					#	create a copy of each of its successors,
+					#	if this copy does not exist yet,
+					if sp not in currentCopy:
+						news = State()
+						currentCopy[sp] = news
+					else:
+						news = currentCopy[sp]
+					# 	add the existing transitions
+					s.add_successor(c, news)
+					# and keep the copy for the next stage
+					nextStage[news] = sp
+		currentStage = nextStage
+		currentCopy = {}
+		nextStage = {}
+		
+	# Get final states and set them as accepting
+	accepting = currentStage.keys()
+	
+	# Get a copy of the original automaton
+	autcopy = automaton.copy()
+	
+	# Add a lambda transition from every accepting state to autcopy initial
+	for s in accepting:
+		s.add_successor(LAMBDA, autcopy.initial)
+		
+	# Return the new automaton, composed of the unrolling above and the copy
+	return Automaton(s0, set(accepting) | autcopy.accepting)
