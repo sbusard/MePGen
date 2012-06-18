@@ -51,21 +51,21 @@ class Automaton:
 				if start in self.accepting:
 					return True
 			else:
-				if word[0] in start.successors:
-					for s in start.successors[word[0]]:
-						if _accepts(word[1:], s, []):
+				for ran in [r for r in start.successors if word[0] in r]:
+					for s in start.successors[ran]:
+						if _accepts(word[1:], s, set()):
 							return True
-			if LAMBDA in start.successors:
-				for s in [x for x in start.successors[LAMBDA] \
+			for ran in [r for r in start.successors if LAMBDA in r]:
+				for s in [x for x in start.successors[ran] \
 							if x not in lambdas]:
-					if _accepts(word, s, lambdas + [start]):
+					if _accepts(word, s, lambdas | set([start])):
 						return True
 
 			return False
 		
 		# To check whether word is accepted:
 		# check if there is an accepting run from the initial state for word
-		if _accepts(word, self.initial, []):
+		if _accepts(word, self.initial, set()):
 			return True
 		return False
 		
@@ -79,7 +79,7 @@ class Automaton:
 		"""
 		
 		# Maintain two structures:
-		# 	- one stack to perform the search (here, BFS)
+		# 	- one stack to perform the search
 		#	- one set to store visited states
 		
 		pending = [self.initial]
@@ -88,10 +88,12 @@ class Automaton:
 		while len(pending) > 0:
 			s0 = pending.pop()			
 			visited.add(s0)
-			for char in s0.successors:
-				if len(s0.successors[char]) > 1:
+			chars = s0.get_possible_chars()
+			for char in chars:
+				nexts = s0.get_successors_by_char(char)
+				if len(nexts) > 1:
 					return False
-				for s in s0.successors[char]:
+				for s in nexts:
 					if s not in visited:
 						pending.append(s)
 			
@@ -116,8 +118,8 @@ class Automaton:
 		while len(pending) > 0:
 			s = pending.pop()
 			visited.add(s)
-			for char in s.successors:
-				for sp in s.successors[char]:
+			for ran in s.successors:
+				for sp in s.successors[ran]:
 					if sp not in visited:
 						pending.append(sp)
 						
@@ -128,9 +130,9 @@ class Automaton:
 			
 		# Copy transitions
 		for s in visited:
-			for char in s.successors:
-				for sp in s.successors[char]:
-					copies[s].add_successor(char, copies[sp])
+			for ran in s.successors:
+				for sp in s.successors[ran]:
+					copies[s].add_successor(ran, copies[sp])
 					
 		# Get accepting states
 		accepting = set()
