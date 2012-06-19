@@ -20,7 +20,7 @@ def determinize(automaton):
 		there is at least one state in stateset having a transition labeled
 		with c.
 		"""
-		return {c for s in stateset for ran in s.successors for c in ran}
+		return {c for s in stateset for c in s.get_possible_chars()}
 		
 	
 	# Subsets of states of automaton become states of the determinized automaton
@@ -53,21 +53,26 @@ def determinize(automaton):
 	if automaton.initial in automaton.accepting:
 		accepting.add(mapping[ss0])
 	
+	transitions = {}
 	while len(pending) > 0:
 		ss = pending.pop()
 		cc = _get_chars(ss)
 		for c in cc:
 			succs = set()
 			for s in ss:
-				if c in s.successors:
-					succs = succs | s.successors[c]
+				succs = succs | s.get_successors_by_char(c)
 			succs = frozenset(succs)
 			if succs not in mapping:
 				mapping[succs] = State()
 				pending.append(succs)
 				if len(succs & automaton.accepting) > 0:
 					accepting.add(mapping[succs])
-			mapping[ss].add_successor(c, mapping[succs])
+			if (ss, succs) not in transitions:
+				transitions[(ss, succs)] = set()
+			transitions[(ss, succs)] |= {c}
+			
+	for (s, sp) in transitions:
+		mapping[s].add_successor(frozenset(transitions[(s, sp)]), mapping[sp])
 			
 	return Automaton(mapping[ss0], accepting)
 	
