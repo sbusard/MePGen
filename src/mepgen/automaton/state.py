@@ -52,6 +52,13 @@ class State:
 		"""
 		return {char for ran in self.successors for char in ran}
 		
+		
+	def get_successors(self):
+		"""
+		Returns the set of successors of this state.
+		"""
+		return {s for ran in self.successors for s in self.successors[ran]}
+		
 	
 	def get_successors_by_char(self, char):
 		"""

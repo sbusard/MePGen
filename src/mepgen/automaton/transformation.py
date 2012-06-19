@@ -20,12 +20,7 @@ def determinize(automaton):
 		there is at least one state in stateset having a transition labeled
 		with c.
 		"""
-		
-		chars = set()
-		for s in stateset:
-			chars = chars | set(s.successors)
-			
-		return chars
+		return {c for s in stateset for ran in s.successors for c in ran}
 		
 	
 	# Subsets of states of automaton become states of the determinized automaton
@@ -92,14 +87,13 @@ def remove_lambdas(automaton):
 		pending = [state]
 		visited = set()
 		reachable = set()
-		
+					
 		while len(pending) > 0:
 			s0 = pending.pop()
 			visited.add(s0)
-			if LAMBDA in s0.successors:
-				reachable = reachable | s0.successors[LAMBDA]
-				for s in [s for s in s0.successors[LAMBDA] \
-							if s not in (visited | set(pending))]:
+			for s in s0.get_successors_by_char(LAMBDA):
+				reachable |= {s}
+				if s not in visited:
 					pending.append(s)
 				
 		return reachable
@@ -129,20 +123,30 @@ def remove_lambdas(automaton):
 		
 		reachable = _get_lambda_reachable(s0)
 		
+		# Add a transition for each transition from a LAMBDA reachable state
 		for s in reachable:
-			for c in [c for c in s.successors if c != LAMBDA]:
-				for sp in s.successors[c]:
-					s0.add_successor(c, sp)
+			for ran in s.successors:
+				for sp in s.successors[ran]:
+					s0.add_successor(ran, sp)
 			if s in automaton.accepting:
 				automaton.accepting.add(s0)
 				
-		for c in s0.successors:
-			for s in s0.successors[c]:
-				if s not in visited | set(pending):
-					pending.append(s)
-					
-		if LAMBDA in s0.successors:
-			del s0.successors[LAMBDA]
+		# Add all unvisited successors to pending
+		for s in s0.get_successors():
+			if s not in visited:
+				pending.append(s)
+				
+		# Remove LAMBDAs
+		for ran in [r for r in s0.successors if LAMBDA in r]:
+			if len(ran) == 1:	# ran contains only LAMBDA
+				del s0.successors[ran]
+			else:
+				# Remove LAMBDA from ran. To do this, remove the transition,
+				# compute the new range (ran - LAMBDA) and re-add the transition
+				succs = s0.successors[ran]
+				del s0.successors[ran]
+				ranp = frozenset(ran - {LAMBDA})
+				s0.add_successor(ranp, succs)
 		
 	return automaton
 
