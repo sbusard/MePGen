@@ -177,23 +177,14 @@ def automaton_to_wordtree(automaton, depth):
 		if depth <= 0:
 			return Wordtree({}, state in accepting)
 		
-		ranges = {}
-		states = set()
-		for c in state.successors:
-			for s in state.successors[c]:
-				states.add(s)
-				if s not in ranges:
-					ranges[s] = set()
-				ranges[s].add(c)
-				
 		successors = {}
-		for s in states:
-			if (s, depth-1) in built:
-				successors[frozenset(ranges[s])] = built[(s, depth-1)]
-			else:
-				successors[frozenset(ranges[s])] = \
-								_automaton_to_wordtree(	built, accepting,
-														s, depth-1)
+		for ran in state.successors:
+			for s in state.successors[ran]:
+				if (s, depth - 1) in built:
+					successors[ran] = built[(s, depth - 1)]
+				else:
+					successors[ran] = _automaton_to_wordtree(built, accepting,
+															 s, depth - 1)
 		wt = Wordtree(successors)
 		built[(state, depth)] = wt
 		return wt
