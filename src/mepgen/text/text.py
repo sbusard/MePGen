@@ -135,16 +135,24 @@ def successors_to_automaton(successors):
 	states = {}
 	allstates = set()
 	
+	ranges = {}
 	for c in successors:
 		if c not in states:
 			states[c] = State()
 			allstates.add(states[c])
-		s0.add_successor(c, states[c])
+		if (s0, states[c]) not in ranges:
+			ranges[(s0, states[c])] = set()
+		ranges[(s0, states[c])] |= {c}
 		for cp in successors[c]:
 			if cp not in states:
 				states[cp] = State()
 				allstates.add(states[cp])
-			states[c].add_successor(cp, states[cp])
+			if (states[c], states[cp]) not in ranges:
+				ranges[(states[c], states[cp])] = set()
+			ranges[(states[c], states[cp])] |= {cp}
+			
+	for (s, sp) in ranges:
+		s.add_successor(frozenset(ranges[(s, sp)]), sp)
 			
 	return Automaton(s0, allstates)
 		

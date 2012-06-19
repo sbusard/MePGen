@@ -1,4 +1,4 @@
-from .regex import Concat, Choice, Repeat, Range, Custom
+from .regex import Concat, Choice, Repeat, Range, Automaton as AutoReg
 from ..automaton.automaton import Automaton
 from ..automaton.state import State, LAMBDA
 from ..automaton.transformation import remove_lambdas, determinize, automaton_to_wordtree
@@ -14,10 +14,9 @@ def regex_to_automaton(regex):
 		s0 = State()
 		s1 = State()
 		
-		for char in regex.range:
-			s0.add_successor(char, s1)
+		s0.add_successor(regex.range, s1)
 		
-		return Automaton(s0, set([s1]))
+		return Automaton(s0, frozenset([s1]))
 		
 	if type(regex) == Choice:
 		# Add an initial state
@@ -30,8 +29,8 @@ def regex_to_automaton(regex):
 		
 		s0 = State()
 		
-		s0.add_successor(LAMBDA, l.initial)
-		s0.add_successor(LAMBDA, r.initial)
+		s0.add_successor(frozenset([LAMBDA]), l.initial)
+		s0.add_successor(frozenset([LAMBDA]), r.initial)
 			
 		return Automaton(s0, l.accepting | r.accepting)
 		
@@ -44,11 +43,11 @@ def regex_to_automaton(regex):
 		
 		s0 = State()
 		
-		s0.add_successor(LAMBDA, c.initial)
+		s0.add_successor(frozenset([LAMBDA]), c.initial)
 		for s in c.accepting:
-			s.add_successor(LAMBDA, s0)
+			s.add_successor(frozenset([LAMBDA]), s0)
 			
-		return Automaton(s0, set([s0]))
+		return Automaton(s0, frozenset([s0]))
 		
 	if type(regex) == Concat:
 		# Add an intermediate state leading through lambda to the initial state
@@ -63,12 +62,12 @@ def regex_to_automaton(regex):
 		s0 = State()
 		
 		for s in l.accepting:
-			s.add_successor(LAMBDA, s0)
-		s0.add_successor(LAMBDA, r.initial)
+			s.add_successor(frozenset([LAMBDA]), s0)
+		s0.add_successor(frozenset([LAMBDA]), r.initial)
 			
 		return Automaton(l.initial, r.accepting)
 		
-	if type(regex) == Custom:
+	if type(regex) == AutoReg:
 		# Take a copy of the automaton and return it
 		return regex.automaton.copy()
 		

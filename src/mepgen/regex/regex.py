@@ -57,25 +57,28 @@ class Repeat(Regex):
 class Range(Regex):
 	
 	def __init__(self, regrange):
+		"""
+		regrange is a frozenset of strings.
+		"""
 		self.range = regrange
 		
 	def __str__(self):
-		return "[" + str(self.range) + "]"
+		return str(self.range)
 		
 	def copy(self):
 		return Range(self.range)
 		
 		
-class Custom(Regex):
+class Automaton(Regex):
 	"""
-	Custom regex is a regex defined by an automaton.
+	Automaton regex is a regex defined by an automaton.
 	"""
 	
 	def __init__(self, automaton):
 		self.automaton = automaton
 		
 	def __str__(self):
-		return "Custom(" + str(self.automaton) + ")"
+		return "Automaton(" + str(self.automaton) + ")"
 	
 	def copy(self):
-		return Custom(self.automaton.copy())
+		return Automaton(self.automaton.copy())

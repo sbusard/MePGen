@@ -20,12 +20,7 @@ def determinize(automaton):
 		there is at least one state in stateset having a transition labeled
 		with c.
 		"""
-		
-		chars = set()
-		for s in stateset:
-			chars = chars | set(s.successors)
-			
-		return chars
+		return {c for s in stateset for c in s.get_possible_chars()}
 		
 	
 	# Subsets of states of automaton become states of the determinized automaton
@@ -58,21 +53,26 @@ def determinize(automaton):
 	if automaton.initial in automaton.accepting:
 		accepting.add(mapping[ss0])
 	
+	transitions = {}
 	while len(pending) > 0:
 		ss = pending.pop()
 		cc = _get_chars(ss)
 		for c in cc:
 			succs = set()
 			for s in ss:
-				if c in s.successors:
-					succs = succs | s.successors[c]
+				succs = succs | s.get_successors_by_char(c)
 			succs = frozenset(succs)
 			if succs not in mapping:
 				mapping[succs] = State()
 				pending.append(succs)
 				if len(succs & automaton.accepting) > 0:
 					accepting.add(mapping[succs])
-			mapping[ss].add_successor(c, mapping[succs])
+			if (ss, succs) not in transitions:
+				transitions[(ss, succs)] = set()
+			transitions[(ss, succs)] |= {c}
+			
+	for (s, sp) in transitions:
+		mapping[s].add_successor(frozenset(transitions[(s, sp)]), mapping[sp])
 			
 	return Automaton(mapping[ss0], accepting)
 	
@@ -92,14 +92,13 @@ def remove_lambdas(automaton):
 		pending = [state]
 		visited = set()
 		reachable = set()
-		
+					
 		while len(pending) > 0:
 			s0 = pending.pop()
 			visited.add(s0)
-			if LAMBDA in s0.successors:
-				reachable = reachable | s0.successors[LAMBDA]
-				for s in [s for s in s0.successors[LAMBDA] \
-							if s not in (visited | set(pending))]:
+			for s in s0.get_successors_by_char(LAMBDA):
+				reachable |= {s}
+				if s not in visited:
 					pending.append(s)
 				
 		return reachable
@@ -129,20 +128,30 @@ def remove_lambdas(automaton):
 		
 		reachable = _get_lambda_reachable(s0)
 		
+		# Add a transition for each transition from a LAMBDA reachable state
 		for s in reachable:
-			for c in [c for c in s.successors if c != LAMBDA]:
-				for sp in s.successors[c]:
-					s0.add_successor(c, sp)
+			for ran in s.successors:
+				for sp in s.successors[ran]:
+					s0.add_successor(ran, sp)
 			if s in automaton.accepting:
 				automaton.accepting.add(s0)
 				
-		for c in s0.successors:
-			for s in s0.successors[c]:
-				if s not in visited | set(pending):
-					pending.append(s)
-					
-		if LAMBDA in s0.successors:
-			del s0.successors[LAMBDA]
+		# Add all unvisited successors to pending
+		for s in s0.get_successors():
+			if s not in visited:
+				pending.append(s)
+				
+		# Remove LAMBDAs
+		for ran in [r for r in s0.successors if LAMBDA in r]:
+			if len(ran) == 1:	# ran contains only LAMBDA
+				del s0.successors[ran]
+			else:
+				# Remove LAMBDA from ran. To do this, remove the transition,
+				# compute the new range (ran - LAMBDA) and re-add the transition
+				succs = s0.successors[ran]
+				del s0.successors[ran]
+				ranp = frozenset(ran - {LAMBDA})
+				s0.add_successor(ranp, succs)
 		
 	return automaton
 
@@ -173,23 +182,14 @@ def automaton_to_wordtree(automaton, depth):
 		if depth <= 0:
 			return Wordtree({}, state in accepting)
 		
-		ranges = {}
-		states = set()
-		for c in state.successors:
-			for s in state.successors[c]:
-				states.add(s)
-				if s not in ranges:
-					ranges[s] = set()
-				ranges[s].add(c)
-				
 		successors = {}
-		for s in states:
-			if (s, depth-1) in built:
-				successors[frozenset(ranges[s])] = built[(s, depth-1)]
-			else:
-				successors[frozenset(ranges[s])] = \
-								_automaton_to_wordtree(	built, accepting,
-														s, depth-1)
+		for ran in state.successors:
+			for s in state.successors[ran]:
+				if (s, depth - 1) in built:
+					successors[ran] = built[(s, depth - 1)]
+				else:
+					successors[ran] = _automaton_to_wordtree(built, accepting,
+															 s, depth - 1)
 		wt = Wordtree(successors)
 		built[(state, depth)] = wt
 		return wt
@@ -228,8 +228,8 @@ def reject_short_words(automaton, minlen):
 	for i in range(minlen):
 		# For each unrolled state, get its corresponding state of automaton
 		for s in currentStage:
-			for c in currentStage[s].successors:
-				for sp in currentStage[s].successors[c]:
+			for ran in currentStage[s].successors:
+				for sp in currentStage[s].successors[ran]:
 					# unroll it, i.e.
 					#	create a copy of each of its successors,
 					#	if this copy does not exist yet,
@@ -239,7 +239,7 @@ def reject_short_words(automaton, minlen):
 					else:
 						news = currentCopy[sp]
 					# 	add the existing transitions
-					s.add_successor(c, news)
+					s.add_successor(ran, news)
 					# and keep the copy for the next stage
 					nextStage[news] = sp
 		currentStage = nextStage
@@ -254,7 +254,7 @@ def reject_short_words(automaton, minlen):
 	
 	# Add a lambda transition from every accepting state to autcopy initial
 	for s in accepting:
-		s.add_successor(LAMBDA, autcopy.initial)
+		s.add_successor(frozenset({LAMBDA}), autcopy.initial)
 		
 	# Return the new automaton, composed of the unrolling above and the copy
 	return Automaton(s0, set(accepting) | autcopy.accepting)
