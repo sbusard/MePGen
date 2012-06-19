@@ -223,8 +223,8 @@ def reject_short_words(automaton, minlen):
 	for i in range(minlen):
 		# For each unrolled state, get its corresponding state of automaton
 		for s in currentStage:
-			for c in currentStage[s].successors:
-				for sp in currentStage[s].successors[c]:
+			for ran in currentStage[s].successors:
+				for sp in currentStage[s].successors[ran]:
 					# unroll it, i.e.
 					#	create a copy of each of its successors,
 					#	if this copy does not exist yet,
@@ -234,7 +234,7 @@ def reject_short_words(automaton, minlen):
 					else:
 						news = currentCopy[sp]
 					# 	add the existing transitions
-					s.add_successor(c, news)
+					s.add_successor(ran, news)
 					# and keep the copy for the next stage
 					nextStage[news] = sp
 		currentStage = nextStage
@@ -249,7 +249,7 @@ def reject_short_words(automaton, minlen):
 	
 	# Add a lambda transition from every accepting state to autcopy initial
 	for s in accepting:
-		s.add_successor(LAMBDA, autcopy.initial)
+		s.add_successor(frozenset({LAMBDA}), autcopy.initial)
 		
 	# Return the new automaton, composed of the unrolling above and the copy
 	return Automaton(s0, set(accepting) | autcopy.accepting)
