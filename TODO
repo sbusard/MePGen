@@ -1,5 +1,4 @@
 - Clean the project (README, etc.)
-- Change automaton representation to allow ranges of elements of the alphabet (and then allowing elements that are not single chars as 'ch'). This can be done by asking an iterable (and thus a string or a list) for Range() regex, and using this iterable (an immutable? or make a copy?) as label of the transition. This leads to a change to wordtrees too, since, for example, randomrun relies on the fact that ranges are strings.
 - Change the encoding of transition relation to avoid the nested loops
 	for c in s.successors:
 		for sp in s.successors[c]:
@@ -8,6 +7,7 @@ maybe by using tuples (c, succ), or something else...
 - Add necessary exceptions, etc. to control errors (unsatisfied preconditions, exceptional cases)
 
 
+X Change automaton representation to allow ranges of elements of the alphabet (and then allowing elements that are not single chars as 'ch'). This can be done by asking an iterable (and thus a string or a list) for Range() regex, and using this iterable (an immutable? or make a copy?) as label of the transition. This leads to a change to wordtrees too, since, for example, randomrun relies on the fact that ranges are strings.
 X Find a way to produce, from a given automaton, a new automaton that only accepts words of a certain minimum size
 X Add more flexibility on choosing retained characters in text_to_matrix by giving a filter function instead of a set of characters
 X Implement text_to_automaton (only some calls to sub-algorithms)
