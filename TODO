@@ -1,4 +1,5 @@
 - Clean the project (README, etc.)
+- Give explanations about how everything works and how to use it.
 - Change the encoding of transition relation to avoid the nested loops
 	for c in s.successors:
 		for sp in s.successors[c]:
