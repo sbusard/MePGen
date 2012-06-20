@@ -6,6 +6,7 @@
 maybe by using tuples (c, succ), or something else...
 - Provide mepgen.py script with a default grammar, based on an english text and separators, containing sufficiently many words. Provide options to specify a text/threshold and provide a separated file giving sufficient information about the process to make the right decisions (length of password, given text, etc.)
 - Add necessary exceptions, etc. to control errors (unsatisfied preconditions, exceptional cases)
+- Move transformations to corresponding classes; provide a class Text with transformations of texts.
 
 
 X Change automaton representation to allow ranges of elements of the alphabet (and then allowing elements that are not single chars as 'ch'). This can be done by asking an iterable (and thus a string or a list) for Range() regex, and using this iterable (an immutable? or make a copy?) as label of the transition. This leads to a change to wordtrees too, since, for example, randomrun relies on the fact that ranges are strings.
