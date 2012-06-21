@@ -6,9 +6,9 @@ from mepgen.automaton.automaton import Automaton
 from mepgen.automaton.state import State, LAMBDA
 
 
-# >s0 	-a,c>	s1	-a>		s2
-#		-b>		s3	-a,b>	(s4)
-#		-d>		s5	-d>		(s6)
+# >s0   -a,c>   s1  -a>     s2
+#       -b>     s3  -a,b>   (s4)
+#       -d>     s5  -d>     (s6)
 
 s0,s1,s2,s3,s4,s5,s6 = State(),State(),State(),State(),State(),State(),State()
 
@@ -31,14 +31,14 @@ aut = determinize(remove_lambdas(aut))
 wt = automaton_to_wordtree(aut, 2)
 #wt = remove_empty_subtrees(wt)
 
-# 	>s0	-a,c>	s1	-a>		(s2)
-#	4			1			1
-#		a:1/4		a:1
-#		c:1/4
-#		-b>		s3	-a,b>	(s4)
-#				2			1
-#		b:1/2		a:1/2
-#					b:1/2
+#   >s0 -a,c>   s1  -a>     (s2)
+#   4           1           1
+#       a:1/4       a:1
+#       c:1/4
+#       -b>     s3  -a,b>   (s4)
+#               2           1
+#       b:1/2       a:1/2
+#                   b:1/2
 
 # aa -> 1/4
 # ca -> 1/4
@@ -48,17 +48,17 @@ wt = automaton_to_wordtree(aut, 2)
 
 # Other example
 
-# 	>s0	-a,c>	s1	-a>		(s2)
-#	5			1			1
-#		a:1/5		a:1
-#		c:1/5
-#		-b>		s3	-a,b>	(s4)
-#				2			1
-#		b:2/5		a:1/2
-#					b:1/2
-#		-d>		s5	-d>		(s6)
-#				1			1
-#		d:1/5		d:1
+#   >s0 -a,c>   s1  -a>     (s2)
+#   5           1           1
+#       a:1/5       a:1
+#       c:1/5
+#       -b>     s3  -a,b>   (s4)
+#               2           1
+#       b:2/5       a:1/2
+#                   b:1/2
+#       -d>     s5  -d>     (s6)
+#               1           1
+#       d:1/5       d:1
 
 # aa -> 1/5
 # ca -> 1/5
@@ -69,11 +69,11 @@ wt = automaton_to_wordtree(aut, 2)
 
 words = {}
 for i in range(1000000):
-	word = wt.randomrun()
-	if word not in words:
-		words[word] = 0
-	words[word] += 1
-	
-	if i % 1000 == 0:
-		print(words)
+    word = wt.randomrun()
+    if word not in words:
+        words[word] = 0
+    words[word] += 1
+    
+    if i % 1000 == 0:
+        print(words)
 print(words)

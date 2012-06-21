@@ -28,7 +28,7 @@ extvowe = 'aeiouyáéíóúàèìòùâêîôûäëïöüÿãõ'
 extCons = 'BCDFGHJKLMNPQRSTVWXZÑÇ'
 extcons = 'bcdfghjklmnpqrstvwxzñç'
 extpunc = '@&"\'(§!)-^$`,;:=<#°_¨*%£?./+>•“‘{¶«¡ø}—€@∞…÷≠≤’”Ÿ´„[å»Ø]¥‰#¿' + \
-			'•\±≥æ®†ºœπµ¬ﬁƒ∂‡‹≈©◊ß~ÆÅ‚™ªïŒ∏|ﬂ·∆∑Ω›⁄¢√∫ı'
+            '•\±≥æ®†ºœπµ¬ﬁƒ∂‡‹≈©◊ß~ÆÅ‚™ªïŒ∏|ﬂ·∆∑Ω›⁄¢√∫ı'
 
 
 # Construct the regex
@@ -40,79 +40,79 @@ extpunc = '@&"\'(§!)-^$`,;:=<#°_¨*%£?./+>•“‘{¶«¡ø}—€@∞…
 # GCON := /* generated from gconbase */
 
 gconbase = {
-	'b': 'fhjlmnprsvwz',
-	'c': 'cfhklmnrsvwxz',
-	'd': 'dhjlmnrstwz',
-	'f': 'fhlmnrvw',
-	'g': 'fghlmnrstwz',
-	'h': 'bcdfghjklmnpqrstvwxz',
-	'j': 'fghjlmnrtvw',
-	'k': 'cfhklmnrsvwxz',
-	'l': 'bcdfghjklmnpqrstvwxz',
-	'm': 'bcdfghjklmnpqrstvwxz',
-	'n': 'bcdfghjklmnpqrstvwxz',
-	'p': 'fhjlmnprsvwz',
-	'q': 'cfhklmnrsvwxz',
-	'r': 'bcdfghjklmnpqrstvwxz',
-	's': 'cfghklmnpqrsvwz',
-	't': 'dhjlmnrstwz',
-	'v': 'fhlmnrvw',
-	'w': 'hw',
-	'x': 'hsxz',
-	'z': 'cfghklmnpqrsvwz'
+    'b': 'fhjlmnprsvwz',
+    'c': 'cfhklmnrsvwxz',
+    'd': 'dhjlmnrstwz',
+    'f': 'fhlmnrvw',
+    'g': 'fghlmnrstwz',
+    'h': 'bcdfghjklmnpqrstvwxz',
+    'j': 'fghjlmnrtvw',
+    'k': 'cfhklmnrsvwxz',
+    'l': 'bcdfghjklmnpqrstvwxz',
+    'm': 'bcdfghjklmnpqrstvwxz',
+    'n': 'bcdfghjklmnpqrstvwxz',
+    'p': 'fhjlmnprsvwz',
+    'q': 'cfhklmnrsvwxz',
+    'r': 'bcdfghjklmnpqrstvwxz',
+    's': 'cfghklmnpqrsvwz',
+    't': 'dhjlmnrstwz',
+    'v': 'fhlmnrvw',
+    'w': 'hw',
+    'x': 'hsxz',
+    'z': 'cfghklmnpqrsvwz'
 }
 
 def generate_regex_from_dict(chardict):
-	"""
-	Generates the regex corresponding to the association in chardict.
-	chardict is a dictionary where keys are single characters and values are
-	characters ranges.
-	"""
-	
-	def _generate_choice_regex_from_list(reglist):
-		"""
-		Generates a regex made of choices, corresponding to the choices to
-		take one regex of reglist.
-		reglist is a list of regex, and every element is uniquely present in it.
-		reglist is not empty.
-		"""
-		
-		if len(reglist) == 1:
-			return reglist[0]
-			
-		else:
-			left = reglist[:int(len(reglist) / 2)]
-			right = reglist[int(len(reglist) / 2):]
-			lreg = _generate_choice_regex_from_list(left)
-			rreg = _generate_choice_regex_from_list(right)
-			return Choice(lreg, rreg)
-	
-	conslist = []
-	for char in chardict:
-		ranges = [Range(c) for c in chardict[char]]
-		choices = _generate_choice_regex_from_list(ranges)
-		conslist.append(Choice(Range(char), Concat(Range(char), choices)))
-		
-	return _generate_choice_regex_from_list(conslist)
-	
-	
+    """
+    Generates the regex corresponding to the association in chardict.
+    chardict is a dictionary where keys are single characters and values are
+    characters ranges.
+    """
+    
+    def _generate_choice_regex_from_list(reglist):
+        """
+        Generates a regex made of choices, corresponding to the choices to
+        take one regex of reglist.
+        reglist is a list of regex, and every element is uniquely present in it.
+        reglist is not empty.
+        """
+        
+        if len(reglist) == 1:
+            return reglist[0]
+            
+        else:
+            left = reglist[:int(len(reglist) / 2)]
+            right = reglist[int(len(reglist) / 2):]
+            lreg = _generate_choice_regex_from_list(left)
+            rreg = _generate_choice_regex_from_list(right)
+            return Choice(lreg, rreg)
+    
+    conslist = []
+    for char in chardict:
+        ranges = [Range(c) for c in chardict[char]]
+        choices = _generate_choice_regex_from_list(ranges)
+        conslist.append(Choice(Range(char), Concat(Range(char), choices)))
+        
+    return _generate_choice_regex_from_list(conslist)
+    
+    
 gcon = generate_regex_from_dict(gconbase)
-		
+        
 
 # gvow := vowe [hmnw]? | vowe vowe
 gvow = Choice(
-			Choice(
-				Concat(
-					Range(vowe),
-					Range('hmnw')
-				),
-				Range(vowe)
-			),
-			Concat(
-				Range(vowe),
-				Range(vowe)
-			)
-		)
+            Choice(
+                Concat(
+                    Range(vowe),
+                    Range('hmnw')
+                ),
+                Range(vowe)
+            ),
+            Concat(
+                Range(vowe),
+                Range(vowe)
+            )
+        )
 
 #syll = Concat(Range(cons), Range(vowe))
 #SYLL = Concat(Range(Cons), Range(Vowe))
@@ -155,4 +155,4 @@ print()
 
 # Generate passwords
 for i in range(args.count):
-	print(wordtree.randomrun())
+    print(wordtree.randomrun())

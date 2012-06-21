@@ -3,7 +3,7 @@ from mepgen.automaton.transformation import automaton_to_wordtree, remove_lambda
 from mepgen.wordtree.transformation import remove_empty_subtrees
 from mepgen.regex.regex import *
 from mepgen.regex.transformation import regex_to_automaton, regex_to_wordtree
-	
+    
 
 f = open("lovecraft.txt", "r")
 text = f.read()
@@ -18,18 +18,18 @@ minwordlen = 4
 
 text = text.lower()
 words = reject_short_words(
-			remove_lambdas(
-				text_to_automaton(text, alphafilter, threshold)
-			),
-			minwordlen
-		)
+            remove_lambdas(
+                text_to_automaton(text, alphafilter, threshold)
+            ),
+            minwordlen
+        )
 text = text.upper()
 WORDS = reject_short_words(
-			remove_lambdas(
-				text_to_automaton(text, alphafilter, threshold)
-			),
-			minwordlen
-		)
+            remove_lambdas(
+                text_to_automaton(text, alphafilter, threshold)
+            ),
+            minwordlen
+        )
 
 
 allWords = Choice(Automaton(words), Automaton(WORDS))
@@ -40,4 +40,4 @@ wordtree = regex_to_wordtree(regex, 16)
 print("wordtree can produce " + str(wordtree.wordscount) + " words.")
 
 for i in range(10):
-	print(wordtree.randomrun())
+    print(wordtree.randomrun())
