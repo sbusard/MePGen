@@ -8,6 +8,14 @@ from mepgen.automaton.transformation import (remove_lambdas, determinize,
                                              reject_short_words)
 
 
+def get_text_from_filename(filename):
+    """Return the content of filename"""
+    f = open(filename,"r")
+    text = f.read()
+    f.close()
+    return text
+
+
 # Parse arguments
 # mepgen.py -v
 #           -s pwdsize (default: 16)
@@ -24,11 +32,12 @@ word_group.add_argument('-s',dest="size",help="size of the generated passwords (
 word_group.add_argument('-n',dest="count",help="number of generated passwords (default: 10)", default=10,type=int)
 
 text_group = parser.add_argument_group(title="source text related arguments")
-text_group.add_argument('-t',dest="text",help="source text (default: None)",default=None)
+text_group.add_argument('-t',dest="text",help="source text (default: None)",default=None,type=get_text_from_filename)
 text_group.add_argument('-b',dest="threshold",help="threshold to keep characters from source file (default: 0.0)",default=0.0,type=float)
 text_group.add_argument('-l',dest="minlen",help="minimum length for text generated words (default: 4)",default=4,type=int)
 
 args = parser.parse_args()
+
 
 # Get the ranges
 Vowe = 'AEIOUY'
@@ -39,43 +48,52 @@ digi = '0123456789'
 punc = '\'"()[]{}.,;:-@&'
 
 # Construct the regex
-# PASS := SEPA? WORD (SEPA WORD)* SEPA?
-# SEPA := digi+ | punc
-# WORD := (vowe | cons)*                    if text is not defined
+# PASS := WORD (SEPA WORD)*
+# SEPA := digi digi? | punc
+# WORD := (vowe | cons)*        if text is not defined
 
 # WORD := (vowe | cons)+ if text is not defined
+# otherwise, WORD is the set of words, upper and lowercase, from text
 if args.text:
-    fullWord = Automaton(determinize(remove_lambdas(
-                reject_short_words(
-                    text_to_automaton(
-                        args.text,
-                        lambda x : x.isalpha(),
-                        args.threshold),
-                    args.minlen))))
+    Word = Automaton(reject_short_words(
+            text_to_automaton(args.text,
+                              lambda x : x.isalpha(),
+                              args.threshold),
+            args.minlen))
+    word = Automaton(reject_short_words(
+            text_to_automaton(args.text.lower(),
+                              lambda x : x.isalpha(),
+                              args.threshold),
+            args.minlen))
+    WORD = Automaton(reject_short_words(
+            text_to_automaton(args.text.upper(),
+                              lambda x : x.isalpha(),
+                              args.threshold),
+            args.minlen))
+    fullWord = Choice(Choice(Word, word), WORD)
 else:
     fullWord = Concat(Range(Vowe + vowe + Cons + cons),
                       Repeat(Range(Vowe + vowe + Cons + cons)))
 
-# SEPA := punc? digi digi? punc? | punc
+# SEPA := digi digi? | punc
 dd = Choice(Range(digi), Concat(Range(digi), Range(digi)))
 sepa = Choice(dd, Range(punc))
 
-# PASS := SEPA? WORD (SEPA WORD)* SEPA?
+# PASS := WORD (SEPA WORD)*
 sws = Repeat(Concat(sepa, fullWord))
 wsws = Concat(fullWord, sws)
-sewsws = Choice(Concat(sepa, wsws), wsws)
-sewswsse = Choice(sewsws, Concat(sewsws, sepa))
 
-regex = sewswsse
+regex = wsws
 
 
 # Get wordtree
 if args.verbose:
-    print("Constructing the word tree{0}...".format(args.text and " from {0}".format(args.text) or " without source text"))
+    print("Constructing the word tree...")
 wordtree = regex_to_wordtree(regex, args.size)
 if args.verbose:
-    print("The tree can generate " + str(wordtree.wordscount) + " words.")
+    print("The tree can generate {0} words.".format(str(wordtree.wordscount)))
     print()
+
 
 # Generate passwords
 for i in range(args.count):

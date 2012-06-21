@@ -124,3 +124,18 @@ class Wordtree:
                 # the next character is uniformly selected in the selected range
                 charid = int(random() * len(ran))
                 return list(ran)[charid] + state.randomrun()
+           
+                
+    def get_alphabet(self):
+        """
+        Returns the alphabet of this wordtree.
+        The alphabet of this wordtree is the set of possible characters this
+        wordtree uses. It only consider characters leading to children
+        recognizing some words.
+        """
+        
+        alphabet = set()
+        for ran in self.successors:
+            if self.successors[ran].wordscount > 0:
+                alphabet |= ran
+        return alphabet
