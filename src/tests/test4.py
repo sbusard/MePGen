@@ -38,6 +38,9 @@ regex = Concat(allWords, Repeat(Concat(sep, allWords)))
 wordtree = regex_to_wordtree(regex, 16)
 
 print("wordtree can produce " + str(wordtree.wordscount) + " words.")
+alph = list(wordtree.get_alphabet())
+alph.sort()
+print(alph)
 
 for i in range(10):
     print(wordtree.randomrun())
