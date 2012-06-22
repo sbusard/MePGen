@@ -6,6 +6,7 @@ Second, MePGen relies on a given text to produce prossible words. It is in fact 
 
 
 # Usage
+=======
 
 ```
 usage: mepgen.py [-h] [-v] [-s SIZE] [-n COUNT] [-t TEXT] [-b THRESHOLD]
@@ -33,7 +34,7 @@ The "passwords related arguments" are related to the finally generated memorable
 
 The "source text related arguments" are related to the text and the parameters to extract new words from this text. The `-t` argument provides the path to the text to use and the `-l` argument specifies the minimum size of the words generated to produce a password. Finally, the `-b` argument defines a threshold to ignore some possible words from the text.
 
-In summary, if the words composing the generated passwords (the subparts composed of letters) are not memorable enough, try to increase the `-b` argument. If MePGen says that no word can be generated, try to decrease it.
+In short, if the words composing the generated passwords (the subparts composed of letters) are not memorable enough, try to increase the `-b` argument. If MePGen says that no word can be generated, try to decrease it.
 
 In more details, to produce a word, MePGen extracts, from the given text, the set of pairs *(c, d)* of characters such that *c* is followed by *d* in any word. In addition, it counts the number of each *(c, d)* in the text. With this set of pairs, it can produce a word such that every character *c* of the word is followed by a character *d* that originally follows *c* in the text. Furthermore, MePGen can also restrict the set of possible words by rejecting too short words.
 
@@ -43,3 +44,8 @@ For more information on how MePGen works and what is the underlying theory, see 
 
 
 ## Default values
+-----------------
+
+Each MePGen argument has a default value. By default, it generates 10 passwords of length 16. In the same way, the default threshold for discarding rare characters successors from the given text is 0; so, given a text, every pair *(c, d)* present in the words of the text are kept for the word generation.
+
+Finally, the default text is `None`; in this case, as no word can be extracted from an empty text, MePGen uses an internal regular expression for words instead. This regular expression simply allows any word, i.e. any string of any length composed of letters. In this case, the generated passwords are no more memorable since they can be any string composed of letters, digits and punctuation.
