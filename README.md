@@ -41,9 +41,6 @@ In this context, it is also possible to reject some *(c, d)* pairs. If a pair is
 
 For more information on how MePGen works and what is the underlying theory, see the NOTES.md file.
 
-
-## Default values
-
 Each MePGen argument has a default value. By default, it generates 10 passwords of length 16. In the same way, the default threshold for discarding rare characters successors from the given text is 0; so, given a text, every pair *(c, d)* present in the words of the text are kept for the word generation.
 
 Finally, the default text is `None`; in this case, as no word can be extracted from an empty text, MePGen uses an internal regular expression for words instead. This regular expression simply allows any word, i.e. any string of any length composed of letters. In this case, the generated passwords are no more memorable since they can be any string composed of letters, digits and punctuation.
