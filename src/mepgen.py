@@ -1,6 +1,7 @@
 #! /usr/bin/env python3.2
 
 import argparse
+import sys
 from mepgen.regex.regex import Concat, Choice, Range, Repeat, Automaton
 from mepgen.regex.transformation import regex_to_wordtree
 from mepgen.text.text import text_to_automaton
@@ -90,6 +91,9 @@ regex = wsws
 if args.verbose:
     print("Constructing the word tree...")
 wordtree = regex_to_wordtree(regex, args.size)
+if wordtree is None:
+    print("There is no possible password generable with the provided arguments... Abort.")
+    sys.exit(1)
 if args.verbose:
     print("The tree can generate {0} words.".format(str(wordtree.wordscount)))
     print()
