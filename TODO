@@ -8,6 +8,7 @@ maybe by using tuples (c, succ), or something else...
 - Add necessary exceptions, etc. to control errors (unsatisfied preconditions, exceptional cases)
 - Move transformations to corresponding classes; provide a class Text with transformations of texts.
 - Adopt good coding style (docstrings, tabs, etc.)
+- Source texts can be very large (all french words lie in a 3.9MB file). Build a tool, next to mepgen.py, to generate and save the successors matrix from a given text. Can use the pickle Python module to store the matrix into a file. Then modify mepgen.py to be able to take such a file, extract the matrix and build the automaton to generate passwords.
 
 
 X Change automaton representation to allow ranges of elements of the alphabet (and then allowing elements that are not single chars as 'ch'). This can be done by asking an iterable (and thus a string or a list) for Range() regex, and using this iterable (an immutable? or make a copy?) as label of the transition. This leads to a change to wordtrees too, since, for example, randomrun relies on the fact that ranges are strings.
