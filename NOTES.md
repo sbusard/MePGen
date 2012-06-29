@@ -1,5 +1,7 @@
 This document explains the theoretical concepts used by MePGen. It explains the main assumption of MePGen - that memorable passwords can be defined with a regular expression, and how we can generate a random word from such a regex. It also goes further by showing how to provide more memorable words based on a given text and describes the final solution of MePGen.
 
+This document assumes familiarities with regular expressions, regular languages and finite word automata.
+
 
 # Memorable passwords as a regular expression
 
@@ -64,29 +66,47 @@ In fact, a memorable word - not a full password but just a word - seems difficul
 
 To tackle this problem of describing a memorable word with a regular expression, we can take advantages of existing natural languages texts like dictionaries, books, etc.
 
-The assumption here is that if character **c** is often followed by character **i** in natural languages texts, then **c** should be followed by **i** in a memorable randomly generated word. Using this idea, is then possible from the words **dictionary** and **beautiful** to generate the memorable word **dictiful**.
+The assumption here is that if character **c** is often followed by character **i** in natural languages texts, then **c** should be followed by **i** in a memorable randomly generated word. Using this idea, is then possible from the words `dictionary` and `beautiful` to generate the memorable word `dictiful`.
 
-As we have a way to extract a random word from a given automaton, we have to find a way to get an automaton from a given text; we call this text the *source text*. The way MePGen does it is by getting, from the given text, for each character **c** of the text, the set of possible next characters, i.e. the set of characters that follow **c** in any word of the text. We store this information into a 2D matrix where the *i*th element of the **j**th row stores the number of time that **i**th character follows  **j**th character.
+As we have a way to extract a random word from a given automaton, we have to find a way to get an automaton from a given text; we call this text the *source text*. The way MePGen does it is by getting, from the given text, for each character **c** of the text, the set of possible next characters, i.e. the set of characters that follow **c** in any word of the text. We store this information into a 2D matrix where the **i** th element of the **j** th row stores the number of time that **i** th character follows  **j** th character.
 
 From this matrix we can build an automaton that recognizes any word **w** composed of characters of the matrix such that **w** starts with any character and for every pair of successive characters **c** and **d** of **w**, the **(c, d)** entry of the matrix is not zero, i.e. **d** follows **c** at least one time in the source text. To build this automaton, we construct one state by character **c** of the alphabet representing the state we reach when we traverse a transition labelled with **c**, and one special initial state. From the initial state, we can reach all the other states in one step, through the corresponding transition. Furthermore, from any state of character **c**, we can traverse a transition to state of character **d** (thus the transition is labelled with **d**) if and only if the **(c, d)** entry of the matrix is not zero.
 
 The result is then, from a given source text, we produce an automaton that accepts any word of any length that is composed of characters of the source text and such that any character of the word is followed by a character that follows it in a word of the source text.
 
 
-## Integrating an automaton into a regex
+## Integrating an automaton into a regular expression
+
+Having an automaton accepting any memorable word is not sufficient since we want memorable passwords that are composed of words, but also of digits and punctuation marks. It is necessary to integrate such an automaton into a bigger one that can generate memorable passwords. To achieve this, we can integrate it as an element of a regular expression. Since regular expressions are then transformed into automata, the transformation is already done with these special regex.
+
+Finally, note that the automaton could be transformed into a regular expression, but since this regex would then be transformed back to an automaton to build the corresponding wordtree, it is completely useless.
 
 
 ## Customizing the resulting language
 
+Extracting an automaton from a given source text as explained above is not always satisfactory.
+
+First, the automaton accepts words of any length. The final result, when integrating this automaton into a regex and producing words of this regex, then produces passwords composed of possibly empty words, leading to words not memorable anymore. For example, we can take the regular expression of memorable words given at the beginning of this document, where `WORD` is replaced by the automaton corresponding to a given source text. With this language, as a `WORD` can have any length, it can produces the word `563()!40weca32!` where a lot of separators can follow each others. To tackle this problem, it is possible to restrict the automaton to words of a given minimal length.
+
+Second, while `x` is sometimes followed by `f` in some english words, this does not constitute sufficient habits to consider these two characters as successors. Some experiments with source text-based word generation showed that it is useful to consider only characters that are often successors. For example, if `x` is followed three times by `f` in a given text but followed 25 times by `e`, we can discard `f` and only keep `e`. This is achieved in MePGen by applying, on the matrix of a given source text, a threshold to remove rare successors.
+
 
 ### Rejecting short words
+
+To restrict an automaton to words of a given minimal length **l**, we can unfold the automaton **l** times from the initial state. This means that we create a copy of the initial state, constituting the current-level states set, and, **l** times, we create a copy of all successors of the states of the current-level states set, add the corresponding transition, and set the current-level states set as the set of the copies of these successors. Finally, all the lastly created states have transitions to the corresponding original successors.
+
+Using this mechanism, we can build a new automaton **A'** from an automaton **A** and a bound **l** such that **A'** accepts all words accepted by **A** that are at least **l** characters long.
+
+Thanks this mechanism, we can introduce, into a regular expression, words that have a minimal given length.
 
 
 ### Threshold mechanism
 
-% Explain the mechanism
+As explained above, if we keep every successing pairs in words of a given source text, this may lead to rare cases that are not very memorable. This is due to the fact that, from the matrix of successors, we consider all possible next characters equally while in the text, some of them are really rarer than others.
 
-% Discuss adequateness of threshold mechanism
+To tackle this problem, we can, given a threshold, remove all possible next characters that do not occur sufficiently often, compared to the threshold. In more details, given a matrix **m** storing, for each pair **(c, d)** the number of times **c** is followed by **d** in a given source text, and given a threshold **t**, the threshold mechanism of MePGen removes, for each characters **c**, all the characters **d** such that **m[c][d] < sum(m[c]) * threshold**. For example, let **c** have three possible successors **d1**, **d2** and **d3** in the source text, such that **m[c][d1] = 4**, **m[c][d2] = 5** and **m[c][d3] = 1**, meaning that **d1** follows **c** four times in the source text, **d2** five times and **d3** only one time. If we apply a threshold of O.2, only **d1** and **d2** will be kept, by **d3** will be discarded.
+
+Using this mechanism, we can keep only successors that occur sufficiently often in the source text and discard the successors that are too rare.
 
 
 # MePGen solution
