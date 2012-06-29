@@ -104,21 +104,34 @@ Thanks this mechanism, we can introduce, into a regular expression, words that h
 
 As explained above, if we keep every successing pairs in words of a given source text, this may lead to rare cases that are not very memorable. This is due to the fact that, from the matrix of successors, we consider all possible next characters equally while in the text, some of them are really rarer than others.
 
-To tackle this problem, we can, given a threshold, remove all possible next characters that do not occur sufficiently often, compared to the threshold. In more details, given a matrix **m** storing, for each pair **(c, d)** the number of times **c** is followed by **d** in a given source text, and given a threshold **t**, the threshold mechanism of MePGen removes, for each characters **c**, all the characters **d** such that **m[c][d] < sum(m[c]) * threshold**. For example, let **c** have three possible successors **d1**, **d2** and **d3** in the source text, such that **m[c][d1] = 4**, **m[c][d2] = 5** and **m[c][d3] = 1**, meaning that **d1** follows **c** four times in the source text, **d2** five times and **d3** only one time. If we apply a threshold of O.2, only **d1** and **d2** will be kept, by **d3** will be discarded.
+To tackle this problem, we can, given a threshold, remove all possible next characters that do not occur sufficiently often, compared to the threshold. In more details, given a matrix **m** storing, for each pair **(c, d)** the number of times **c** is followed by **d** in a given source text, and given a threshold **t**, the threshold mechanism of MePGen removes, for each characters **c**, all the characters **d** such that **m[c][d] < sum(m[c]) * threshold**. For example, let **c** have three possible successors **d1**, **d2** and **d3** in the source text, such that **m[c][d1] = 4**, **m[c][d2] = 5** and **m[c][d3] = 1**, meaning that **d1** follows **c** four times in the source text, **d2** five times and **d3** only one time. If we apply a threshold of O.2, only **d1** and **d2** will be kept, but **d3** will be discarded.
 
 Using this mechanism, we can keep only successors that occur sufficiently often in the source text and discard the successors that are too rare.
 
 
 # MePGen solution
 
+MePGen uses all the concepts above to produce randomly generated memorable passwords. It uses the following regular expression
+```
+PSWD := WORD (SEPA WORD)*
+SEPA := digi | punc
+```
+where words are giving by a source text to extract possible character successors, a threshold to discard rare character successors and a minimal bound to only accept minimal length words. Furthermore, the generated passwords are uniformly chosen among the words space.
+
 
 ## Advantages
 
-% no reduction of the word space
-%   describe the problem
-%   show that is no more a problem when using texts
-%       in appearance
-%       do not disclose your text
-% a password in your language
-%   quid digits and punctuation?
+The way MePGen generates memorable passwords gives some advantages, in addition to the fact that passwords are more memorable than randomly generated passwords in general.
 
+### Reduction of the words space
+
+When limiting the generation to memorable passwords, you automatically limit the possible generated words (this is obviously the wanted effect). But by limiting the number of possible words, you decrease the effort needed to crack your password using a bruteforce approach: since there are less possible words, there are less words to test. Thus you have to generate longer passwords to achieve the same security; longer passwords mean more possible words, leading to increasing the number of possible words, and thus the effort needed to crack your password using a bruteforce. This is in fact true if the attacker knows that you generated a memorable password (or more precisely how, i.e. with which tool, you generated it); otherwise, she has to try all possible words.
+
+With the approach of MePGen, the use of an external source text allows to tackle this problem. In fact, it is possible to use MePGen with some parameters that produce all the possible words (not only the memorable ones) of a given length, from a given alphabet. If you give a text where every character is followed by every character, and you specify a threshold and a minimal word length of 0, then the generated password will be composed of letters of the text, digits and punctuation marks, and the generated passwords will be chosen in all the words composed of these characters.
+
+This explains why using MePGen induces no apparent reduction of the words space; while you do not disclose the text you used, knowing that you used MePGen to generate your password does not give any help to a possible hacker. This is also a strong warning: if you want to get strong memorable passwords, do not disclose the text and parameters you used to generate them.
+
+
+### A password in your language
+
+Another advantage of this approach is the fact that you can provide MePGen any text, in any language. Since a memorable password in English is not necessarily a memorable password in Finnish; you can get more memorable passwords by giving texts in your language. Furthermore, MePGen uses every character that is a letter present in the source text to compose the alphabet for generated words. This way, you can provide MePGen non-ASCII characters like Arabic or Chinese ones, making passwords stronger by increasing the size of the alphabet.
