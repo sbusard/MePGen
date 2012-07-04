@@ -2,19 +2,14 @@
 
 import argparse
 import sys
+import pickle
+from pickle import UnpicklingError
 from mepgen.regex.regex import Concat, Choice, Range, Repeat, Automaton
 from mepgen.regex.transformation import regex_to_wordtree
-from mepgen.text.text import text_to_automaton
+from mepgen.text.text import (threshold_matrix, extract_successors,
+                              successors_to_automaton)
 from mepgen.automaton.transformation import (remove_lambdas, determinize,
                                              reject_short_words)
-
-
-def get_text_from_filename(filename):
-    """Return the content of filename"""
-    f = open(filename,"r")
-    text = f.read()
-    f.close()
-    return text
 
 
 # Parse arguments
@@ -23,8 +18,9 @@ def get_text_from_filename(filename):
 #           -n pwdnumber (default: 10)
 #           -t text (default: None)
 #           -b threshold (default: 0.0)
+#           -l minlen (default: 4)
 
-parser = argparse.ArgumentParser(description="A memorable passwords generator")
+parser = argparse.ArgumentParser(description="Generate memorable passwords")
 
 parser.add_argument('-v',dest="verbose",help="verbose mode",action='store_true')
 
@@ -33,7 +29,7 @@ word_group.add_argument('-s',dest="size",help="size of the generated passwords (
 word_group.add_argument('-n',dest="count",help="number of generated passwords (default: 10)", default=10,type=int)
 
 text_group = parser.add_argument_group(title="source text related arguments")
-text_group.add_argument('-t',dest="text",help="source text (default: None)",default=None,type=get_text_from_filename)
+text_group.add_argument('-t',dest="table",help="successor table (default: None)",default=None)
 text_group.add_argument('-b',dest="threshold",help="threshold to keep characters from source file (default: 0.0)",default=0.0,type=float)
 text_group.add_argument('-l',dest="minlen",help="minimum length for text generated words (default: 4)",default=4,type=int)
 
@@ -55,24 +51,18 @@ punc = '\'"()[]{}.,;:-@&'
 
 # WORD := (vowe | cons)+ if text is not defined
 # otherwise, WORD is the set of words, upper and lowercase, from text
-if args.text:
-    Word = Automaton(reject_short_words(
-            text_to_automaton(args.text,
-                              lambda x : x.isalpha(),
-                              args.threshold),
-            args.minlen))
-    word = Automaton(reject_short_words(
-            text_to_automaton(args.text.lower(),
-                              lambda x : x.isalpha(),
-                              args.threshold),
-            args.minlen))
-    WORD = Automaton(reject_short_words(
-            text_to_automaton(args.text.upper(),
-                              lambda x : x.isalpha(),
-                              args.threshold),
-            args.minlen))
-    fullWord = Choice(Choice(Word, word), WORD)
-else:
+fullWord = None
+if args.table:
+    with open(args.table, 'br') as f:
+        try:
+            matrix = pickle.load(f)
+            matrix = threshold_matrix(matrix, args.threshold)
+            aut = successors_to_automaton(extract_successors(matrix))
+            fullWord = Automaton(reject_short_words(aut, args.minlen))
+        except UnpicklingError:
+            print("[WARNING] Cannot load the given table (" + args.table + ") "
+                  "Ignoring it.")
+if fullWord is None:
     fullWord = Concat(Range(Vowe + vowe + Cons + cons),
                       Repeat(Range(Vowe + vowe + Cons + cons)))
 
