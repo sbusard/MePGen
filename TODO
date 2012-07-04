@@ -4,13 +4,12 @@
 	for c in s.successors:
 		for sp in s.successors[c]:
 maybe by using tuples (c, succ), or something else...
-- Provide mepgen.py script with a default grammar, based on an english text and separators, containing sufficiently many words. Provide options to specify a text/threshold and provide a separated file giving sufficient information about the process to make the right decisions (length of password, given text, etc.)
 - Add necessary exceptions, etc. to control errors (unsatisfied preconditions, exceptional cases)
 - Move transformations to corresponding classes; provide a class Text with transformations of texts.
 - Adopt good coding style (docstrings, tabs, etc.)
-- Source texts can be very large (all french words lie in a 3.9MB file). Build a tool, next to mepgen.py, to generate and save the successors matrix from a given text. Can use the pickle Python module to store the matrix into a file. Then modify mepgen.py to be able to take such a file, extract the matrix and build the automaton to generate passwords.
 
-
+X Provide mepgen.py script with a default grammar, based on an english text and separators, containing sufficiently many words. Provide options to specify a text/threshold and provide a separated file giving sufficient information about the process to make the right decisions (length of password, given text, etc.)
+X Source texts can be very large (all french words lie in a 3.9MB file). Build a tool, next to mepgen.py, to generate and save the successors matrix from a given text. Can use the pickle Python module to store the matrix into a file. Then modify mepgen.py to be able to take such a file, extract the matrix and build the automaton to generate passwords.
 X Change automaton representation to allow ranges of elements of the alphabet (and then allowing elements that are not single chars as 'ch'). This can be done by asking an iterable (and thus a string or a list) for Range() regex, and using this iterable (an immutable? or make a copy?) as label of the transition. This leads to a change to wordtrees too, since, for example, randomrun relies on the fact that ranges are strings.
 X Find a way to produce, from a given automaton, a new automaton that only accepts words of a certain minimum size
 X Add more flexibility on choosing retained characters in text_to_matrix by giving a filter function instead of a set of characters
