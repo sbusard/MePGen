@@ -63,8 +63,7 @@ if args.table:
             print("[WARNING] Cannot load the given table (" + args.table + ") "
                   "Ignoring it.")
 if fullWord is None:
-    fullWord = Concat(Range(Vowe + vowe + Cons + cons),
-                      Repeat(Range(Vowe + vowe + Cons + cons)))
+    fullWord = Repeat(Range(Vowe + vowe + Cons + cons))
 
 # SEPA := digi digi? | punc
 dd = Choice(Range(digi), Concat(Range(digi), Range(digi)))
