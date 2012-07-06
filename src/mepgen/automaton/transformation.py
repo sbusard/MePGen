@@ -218,6 +218,9 @@ def reject_short_words(automaton, minlen):
     # and add a lambda transition from all these states to the initial state
     # of the copy of the original automaton.
     
+    # Get a copy of the original automaton
+    automaton = automaton.copy()
+    
     # Starts with a copy of automaton.initial
     s0 = State()
     currentStage = {s0 : automaton.initial}
@@ -249,12 +252,11 @@ def reject_short_words(automaton, minlen):
     # Get final states and set them as accepting
     accepting = currentStage.keys()
     
-    # Get a copy of the original automaton
-    autcopy = automaton.copy()
-    
     # Add a lambda transition from every accepting state to autcopy initial
+    # FIXME We cannot do that! 'abcD' is accepted
+    # while the original does not accept 'D' after 'c'!
     for s in accepting:
-        s.add_successor(frozenset({LAMBDA}), autcopy.initial)
+        s.add_successor(frozenset({LAMBDA}), currentStage[s])
         
     # Return the new automaton, composed of the unrolling above and the copy
-    return Automaton(s0, set(accepting) | autcopy.accepting)
+    return Automaton(s0, set(accepting) | automaton.accepting)
