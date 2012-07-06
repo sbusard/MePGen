@@ -9,6 +9,7 @@ maybe by using tuples (c, succ), or something else...
 - Adopt good coding style (docstrings, tabs, etc.)
 - Provide a license
 - Provide several tables to mepgen.py to generate words from each table. This allows to provide several sources of words without mixing them. For example, french words in lowercase, french words in uppercase and french words with leading character in upper and the rest in lowercase.
+- Fix a bug with reject_short_words. When linking the unfolding of the tree with the original automaton, there is a LAMBDA transition for each leaf to the initial node of the automaton. This is a bug since it accepts for example 'abcD' while the original automaton does not accept 'D' after 'c'.
 
 X Provide mepgen.py script with a default grammar, based on an english text and separators, containing sufficiently many words. Provide options to specify a text/threshold and provide a separated file giving sufficient information about the process to make the right decisions (length of password, given text, etc.)
 X Source texts can be very large (all french words lie in a 3.9MB file). Build a tool, next to mepgen.py, to generate and save the successors matrix from a given text. Can use the pickle Python module to store the matrix into a file. Then modify mepgen.py to be able to take such a file, extract the matrix and build the automaton to generate passwords.
