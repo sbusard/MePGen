@@ -49,7 +49,7 @@ punc = '\'"()[]{}.,;:-@&'
 # SEPA := digi digi? | punc
 # WORD := (vowe | cons)*        if text is not defined
 
-# WORD := (vowe | cons)+ if text is not defined
+# WORD := (vowe | cons)* if text is not defined
 # otherwise, WORD is the set of words, upper and lowercase, from text
 fullWord = None
 if args.table:

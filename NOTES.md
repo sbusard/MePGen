@@ -48,7 +48,7 @@ Finally, note that the two necessary transformations - removing empty transition
 
 ## Empty subtrees of wordtrees
 
-A potential concern about wordtrees is the following: when unfolding an automaton, some subtrees of the corresponding wordtree can accept no word, in the case where some leaves do not accept any word. The resulting wordtree thus contains some useless parts since they can not produce any word. This is in fact not a big concern since the choice among possible successors is weighted by the number of possible words produced by these successors, the empty subtrees will never be chosen. It is however possible to remove empty subtrees, resulting into an equivalent, smaller wordtree.
+A potential concern about wordtrees is the following: when unfolding an automaton, some subtrees of the corresponding wordtree can accept no word, in the case where leaves do not accept any word. The resulting wordtree thus contains useless parts since they can not produce any word. This is in fact not a big concern since, as the choice among possible successors is weighted by the number of possible words produced by these successors, the empty subtrees will never be chosen. It is however possible to remove empty subtrees, resulting into an equivalent, smaller wordtree.
 
 
 # Defining a memorable word with a regex is not easy
