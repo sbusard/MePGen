@@ -1,1 +1,1 @@
-__all__ = ['automaton', 'regex', 'wordtree', 'transformation', 'text']
+__all__ = ['automaton', 'regex', 'wordtree', 'text']
