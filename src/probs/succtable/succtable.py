@@ -99,7 +99,9 @@ if __name__ == "__main__":
     else:
         table_path = sys.argv[1]
         table = pickle.load(open(table_path, "br"))
+        succtable = SuccTable()
+        succtable.store = table
         print("Table", os.path.basename(table_path),
-              "is" + ("" if table.check_totality() else " not"), "total.")
+              "is" + ("" if succtable.check_totality() else " not"), "total.")
         for i in range(wordcount):
-            print(table.randomword(length))
+            print(succtable.randomword(length))
