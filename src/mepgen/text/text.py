@@ -1,6 +1,7 @@
 from ..wordtree.wordtree import Wordtree
 from ..automaton.state import State
 from ..automaton.automaton import Automaton
+from ..succtable.succtable import SuccTable
 
 def text_to_matrix(text, charfilter=None):
     """
@@ -33,7 +34,7 @@ def text_to_matrix(text, charfilter=None):
         matrix[c1][c2] += 1
         
     
-    matrix = {}
+    matrix = SuccTable()
 
     for i in range(len(text) - 1):
         if charfilter == None or \
@@ -71,7 +72,7 @@ def threshold_matrix(matrix, threshold):
         matrix[c1][c2] = value
         
     
-    newmatrix = {}
+    newmatrix = SuccTable()
     
     # For each pair (c1, c2), if the value matrix[c1][c2] is higher
     # than rowsum, save it in newmatrix. Otherwise, drop it.
