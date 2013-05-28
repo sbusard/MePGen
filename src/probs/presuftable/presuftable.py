@@ -1,12 +1,5 @@
 import random
 
-def get_text_from_filename(filename):
-    """Return the content of filename"""
-    f = open(filename,"r")
-    text = f.read()
-    f.close()
-    return text
-
 def presuftable(words):
     """
     Compute the set of prefixes and suffixes (with number of occurrences)
@@ -53,7 +46,7 @@ def psrndword(pst, length, maxpre=0, maxsuf=0):
                 return i
     
     # First letter
-    word = word = random.choice(list(k for k in pst.keys() if len(k) <= 1))
+    word = random.choice(list(k for k in pst.keys() if len(k) <= 1))
     
     while(len(word) < length):
         # Get longest prefix
@@ -72,17 +65,20 @@ def psrndword(pst, length, maxpre=0, maxsuf=0):
 
 
 import sys
-import pickle
-import os
 if __name__ == "__main__":
+    
+    def get_text_from_filename(filename):
+        """Return the content of filename"""
+        f = open(filename,"r")
+        text = f.read()
+        f.close()
+        return text
 
     nbwords = 10
     wordlen = 10
     maxpre = 3
     maxsuf = 3
-
     
-
     if len(sys.argv) <= 1:
         print("[ERROR] Need text path.")
     else:
