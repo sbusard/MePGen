@@ -1,6 +1,6 @@
-from ..wordtree import Wordtree
-from ..automaton import State
-from ..automaton import Automaton
+from .wordtree import Wordtree
+from .automaton import State
+from .automaton import Automaton
 
 def text_to_matrix(text, charfilter=None):
     """

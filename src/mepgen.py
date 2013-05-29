@@ -6,8 +6,8 @@ import pickle
 from pickle import UnpicklingError
 from mepgen.regex import Concat, Choice, Range, Repeat, AutomatonReg
 from mepgen.regex import regex_to_wordtree
-from mepgen.text.text import (threshold_matrix, extract_successors,
-                              successors_to_automaton)
+from mepgen.text import (threshold_matrix, extract_successors,
+                         successors_to_automaton)
 from mepgen.automaton import (remove_lambdas, determinize, reject_short_words)
 
 

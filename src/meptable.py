@@ -3,7 +3,7 @@
 import argparse
 import pickle
 
-from mepgen.text.text import text_to_matrix, threshold_matrix
+from mepgen.text import text_to_matrix, threshold_matrix
 
 def get_text_from_filename(filename):
     """Return the content of filename"""
