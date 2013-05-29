@@ -6,26 +6,26 @@ def ngramtable(words, n):
     and return a list containing these numbers of occurrences.
     n >= 1 !
     """
+    
+    def addngram(tgt, word, n):
+        """
+        Compute and store in tgt the set of n-grams of word.
+        n >= 1 !
+        """
+        shifted = []
+        for i in range(n):
+            shifted.append(word[i:])
+        for ngram in zip(*shifted):
+            ngram = "".join(ngram)
+            if ngram not in tgt:
+                tgt[ngram] = 0
+            tgt[ngram] += 1
+            
     tgt = {}
     for word in words:
         addngram(tgt, word, n)
     return tgt
         
-        
-def addngram(tgt, word, n):
-    """
-    Compute and store in tgt the set of n-grams of word.
-    n >= 1 !
-    """
-    shifted = []
-    for i in range(n):
-        shifted.append(word[i:])
-    for ngram in zip(*shifted):
-        ngram = "".join(ngram)
-        if ngram not in tgt:
-            tgt[ngram] = 0
-        tgt[ngram] += 1
-    
 
 def tgrndword(tgt, length):
     """
@@ -71,7 +71,7 @@ def check_totality(tgt):
     there is another ngram strating with the two last letters of
     the previous one.
     """
-    pass
+    pass # TODO
 
 
 import sys
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         return text
 
     nbwords = 10
-    wordlen = 5
+    wordlen = 10
     n = 3
 
     if len(sys.argv) <= 1:
