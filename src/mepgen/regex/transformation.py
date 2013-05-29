@@ -1,7 +1,7 @@
 from .regex import Concat, Choice, Repeat, Range, Automaton as AutoReg
-from ..automaton.automaton import Automaton
-from ..automaton.state import State, LAMBDA
-from ..automaton.transformation import remove_lambdas, determinize, automaton_to_wordtree
+from ..automaton import Automaton
+from ..automaton import State, LAMBDA
+from ..automaton import remove_lambdas, determinize, automaton_to_wordtree
 from ..wordtree.transformation import remove_empty_subtrees
 
 def regex_to_automaton(regex):

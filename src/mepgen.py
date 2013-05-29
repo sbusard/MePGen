@@ -8,8 +8,7 @@ from mepgen.regex.regex import Concat, Choice, Range, Repeat, Automaton
 from mepgen.regex.transformation import regex_to_wordtree
 from mepgen.text.text import (threshold_matrix, extract_successors,
                               successors_to_automaton)
-from mepgen.automaton.transformation import (remove_lambdas, determinize,
-                                             reject_short_words)
+from mepgen.automaton import (remove_lambdas, determinize, reject_short_words)
 
 
 # Parse arguments
