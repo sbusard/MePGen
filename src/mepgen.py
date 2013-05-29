@@ -4,8 +4,8 @@ import argparse
 import sys
 import pickle
 from pickle import UnpicklingError
-from mepgen.regex.regex import Concat, Choice, Range, Repeat, Automaton
-from mepgen.regex.transformation import regex_to_wordtree
+from mepgen.regex import Concat, Choice, Range, Repeat, AutomatonReg
+from mepgen.regex import regex_to_wordtree
 from mepgen.text.text import (threshold_matrix, extract_successors,
                               successors_to_automaton)
 from mepgen.automaton import (remove_lambdas, determinize, reject_short_words)
@@ -57,7 +57,7 @@ if args.table:
             matrix = pickle.load(f)
             matrix = threshold_matrix(matrix, args.threshold)
             aut = successors_to_automaton(extract_successors(matrix))
-            fullWord = Automaton(reject_short_words(aut, args.minlen))
+            fullWord = AutomatonReg(reject_short_words(aut, args.minlen))
         except UnpicklingError:
             print("[WARNING] Cannot load the given table (" + args.table + ") "
                   "Ignoring it.")

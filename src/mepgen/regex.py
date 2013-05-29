@@ -1,8 +1,94 @@
-from .regex import Concat, Choice, Repeat, Range, Automaton as AutoReg
-from ..automaton import Automaton
-from ..automaton import State, LAMBDA
-from ..automaton import remove_lambdas, determinize, automaton_to_wordtree
-from ..wordtree.transformation import remove_empty_subtrees
+from .automaton import Automaton
+from .automaton import State, LAMBDA
+from .automaton import remove_lambdas, determinize, automaton_to_wordtree
+from .wordtree.transformation import remove_empty_subtrees
+
+class Regex():
+    """
+    A Regex represents a regular expression. Each Regex has a type
+    (CONCAT, CHOICE, REPEAT, RANGE).
+    
+    For example, the regular expression (a.(b|c))* is represented by
+    (   REPEAT, 
+        (   CONCAT,
+            (RANGE('a')),
+            (   CHOICE,
+                (RANGE('b')),
+                (RANGE('c'))
+            )
+        )
+    )
+    """
+        
+
+class Concat(Regex):
+    
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+        
+    def __str__(self):
+        return "(" + str(self.left) + " . " + str(self.right) + ")"
+        
+    def copy(self):
+        return Concat(self.left.copy(), self.right.copy())
+        
+
+class Choice(Regex):
+
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+        
+    def __str__(self):
+        return "(" + str(self.left) + " | " + str(self.right) + ")"
+        
+    def copy(self):
+        return Concat(self.left.copy(), self.right.copy())
+        
+        
+class Repeat(Regex):
+    
+    def __init__(self, child):
+        self.child = child
+    
+    def __str__(self):
+        return "(" + str(self.child) + ")*"
+        
+    def copy(self):
+        return Concat(self.child.copy())
+
+
+class Range(Regex):
+    
+    def __init__(self, regrange):
+        """
+        regrange is a frozenset of strings.
+        """
+        self.range = regrange
+        
+    def __str__(self):
+        return str(self.range)
+        
+    def copy(self):
+        return Range(self.range)
+        
+        
+class AutomatonReg(Regex):
+    """
+    Automaton regex is a regex defined by an automaton.
+    """
+    
+    def __init__(self, automaton):
+        self.automaton = automaton
+        
+    def __str__(self):
+        return "Automaton(" + str(self.automaton) + ")"
+    
+    def copy(self):
+        return AutomatonReg(self.automaton.copy())
+
+
 
 def regex_to_automaton(regex):
     """
@@ -67,7 +153,7 @@ def regex_to_automaton(regex):
             
         return Automaton(l.initial, r.accepting)
         
-    if type(regex) == AutoReg:
+    if type(regex) == AutomatonReg:
         # Take a copy of the automaton and return it
         return regex.automaton.copy()
         
