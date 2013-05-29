@@ -1,7 +1,7 @@
 from .automaton import Automaton
 from .automaton import State, LAMBDA
 from .automaton import remove_lambdas, determinize, automaton_to_wordtree
-from .wordtree.transformation import remove_empty_subtrees
+from .wordtree import remove_empty_subtrees
 
 class Regex():
     """

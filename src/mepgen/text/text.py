@@ -1,4 +1,4 @@
-from ..wordtree.wordtree import Wordtree
+from ..wordtree import Wordtree
 from ..automaton import State
 from ..automaton import Automaton
 

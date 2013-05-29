@@ -1,4 +1,4 @@
-from .wordtree.wordtree import Wordtree
+from .wordtree import Wordtree
 
 class Automaton:
     """
