@@ -1,31 +1,37 @@
 import random
 
-def trigramtable(words):
+def ngramtable(words, n):
     """
-    Compute the set of trigrams (with number of occurrences) of words
+    Compute the set of n-grams (with number of occurrences) of words
     and return a list containing these numbers of occurrences.
+    n >= 1 !
     """
     tgt = {}
     for word in words:
-        addtrigram(tgt, word)
+        addngram(tgt, word, n)
     return tgt
         
         
-def addtrigram(tgt, word):
+def addngram(tgt, word, n):
     """
-    Compute and store in tgt the set of trigrams of word.
+    Compute and store in tgt the set of n-grams of word.
+    n >= 1 !
     """
-    for trigram in zip(word, word[1:], word[2:]):
-        trigram = "".join(trigram)
-        if trigram not in tgt:
-            tgt[trigram] = 0
-        tgt[trigram] += 1
+    shifted = []
+    for i in range(n):
+        shifted.append(word[i:])
+    for ngram in zip(*shifted):
+        ngram = "".join(ngram)
+        if ngram not in tgt:
+            tgt[ngram] = 0
+        tgt[ngram] += 1
     
 
 def tgrndword(tgt, length):
     """
-    Extract a random word of length from trigrams of tgt.
-    length >= 3 !!!
+    Extract a random word of length from ngrams of tgt.
+    tgt is an n-gram trable
+    length >= n !
     """
     
     def weighted_choice(weights):
@@ -44,25 +50,25 @@ def tgrndword(tgt, length):
         vals = [v for k, v in keyvals]
         return keyvals[weighted_choice(vals)][0]
     
-    # First trigram
+    # First ngram
     word = random.choice(list(tgt.keys()))
     
     while(len(word) < length):
-        # Get all possible trigrams and choose randomly (with weights of occ)
-        trigrams = {k : v for k, v in tgt.items() if k[:2] == word[-2:]}
-        # If no possibility, choose a new random trigram and take the last
+        # Get all possible ngrams and choose randomly (with weights of occ)
+        ngrams = {k : v for k, v in tgt.items() if k[:-1] == word[len(word)-len(k)+1:]}
+        # If no possibility, choose a new random ngram and take the last
         # letter
-        if len(trigrams) <= 0:
+        if len(ngrams) <= 0:
             word = word + random.choice(list(tgt.keys()))[-1]
         else:
-            word = word + random_item(trigrams)[-1]
+            word = word + random_item(ngrams)[-1]
     return word
     
 
 def check_totality(tgt):
     """
-    Check that the trigram table tgt is total, that is, for each trigram,
-    there is another trigram strating with the two last letters of
+    Check that the ngram table tgt is total, that is, for each ngram,
+    there is another ngram strating with the two last letters of
     the previous one.
     """
     pass
@@ -79,7 +85,8 @@ if __name__ == "__main__":
         return text
 
     nbwords = 10
-    wordlen = 10    
+    wordlen = 5
+    n = 3
 
     if len(sys.argv) <= 1:
         print("[ERROR] Need text path.")
@@ -89,6 +96,6 @@ if __name__ == "__main__":
         text = text.lower()
         text = "".join(filter(lambda x : x.isalpha() or x.isspace(), text))
         words = text.split()
-        tgt = trigramtable(words)
+        tgt = ngramtable(words, n)
         for i in range(nbwords):
             print(tgrndword(tgt, wordlen))
