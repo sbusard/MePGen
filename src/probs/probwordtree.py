@@ -111,13 +111,11 @@ class ProbState():
                 return self.ngram[-1] + next.randomword(length - 1)
         
 
-def ngramtable_to_probwordtree(ngt, n, length):
+def ngramtable_to_probwordtree(ngt):
     """
     Build a ProbWordTree from the given n-gram table.
     
-    ngt -- the n-gram table;
-    n -- the length of the n-grams;
-    length -- the intended word length.
+    ngt -- the n-gram table
     """
     # Get all n-grams of ngt
     ngrams = ngt.keys()
@@ -129,19 +127,22 @@ def ngramtable_to_probwordtree(ngt, n, length):
     
     # Build one empty state per n-gram in ngt
     states = {}
+    beginnings = set()
     for ngram in allngrams:
-        states[ngram] = ProbState(ngram) # TODO mark finishing states
-        # TODO Get beginning states
+        states[ngram] = ProbState(ngram[0], finishing=ngram[2])
+        if ngram[1]:
+            beginnings.add(states[ngram])
     
     # for each such a state, build its successors
-    for state in states.values():
+    for cur in states.keys():
         successors = {}
-        if state.ngram in ngt:
-            for ngram, occ in ngt[state.ngram].items():
+        state = states[cur]
+        if cur in ngt:
+            for ngram, occ in ngt[cur].items():
                 successors[states[ngram]] = occ
         state.successors = successors
         
-    return ProbWordTree(states.values())
+    return ProbWordTree(beginnings)
 
 
 def ngramtable(words, n):
@@ -156,36 +157,30 @@ def ngramtable(words, n):
         Compute and store in ngt the set of n-grams of word.
         n >= 1 !
         """
-        shifted = []
-        for i in range(n+1):
-            shifted.append(word[i:])
-        for ngram in zip(*shifted):
-            ngram = "".join(ngram)
-            prev = ngram[:-1]
-            next = ngram[1:]
+        
+        def inc(ngt, prev, next):
             if prev not in ngt:
                 ngt[prev] = {}
             if next not in ngt[prev]:
                 ngt[prev][next] = 0
             ngt[prev][next] += 1
+        
+        beginning = True
+        finishing = False
+            
+        for i in range(len(word)-n):
+            if i >= len(word) - n - 1:
+                finishing = True
+            ngram = word[i:i+n+1]
+            prev = (ngram[:-1], beginning, False)
+            next = (ngram[1:], False, finishing)
+            inc(ngt, prev, next)
+            beginning = False
             
     ngt = {}
     for word in words:
         addngram(ngt, word, n)
     return ngt
-
-
-def check_totality(ngt):
-    """
-    Check that the ngram table ngt is total, that is, for each ngram,
-    there is another ngram strating with the n-1 last letters of
-    the previous one.
-    """
-    for prev in ngt:
-        for next in ngt[prev]:
-            if next not in ngt:
-                return False
-    return False
 
 
 import sys
@@ -211,6 +206,7 @@ if __name__ == "__main__":
         text = "".join(filter(lambda x : x.isalpha() or x.isspace(), text))
         words = text.split()
         ngt = ngramtable(words, n)
-        pwt = ngramtable_to_probwordtree(ngt, n, wordlen)
+        pwt = ngramtable_to_probwordtree(ngt)
+        # TODO Only keep the part of pwt that can produce words of given length
         for i in range(nbwords):
             print(pwt.randomword(wordlen))
