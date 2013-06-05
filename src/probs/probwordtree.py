@@ -82,6 +82,8 @@ class ProbState():
     def randomword(self, length):
         """
         Return a random word from this state and its successors.
+        
+        length -- the length of the random word. length >= 0.
         """
         
         def weighted_choice(weights):
@@ -104,7 +106,6 @@ class ProbState():
             return ""
         else:
             if len(self.successors) <= 0:
-                print("[WARNING] No sucessor.")
                 return self.ngram[-1]
             else:
                 next = random_item(self.successors)
@@ -145,6 +146,92 @@ def ngramtable_to_probwordtree(ngt):
     return ProbWordTree(beginnings)
 
 
+def keep_words(pwt, length):
+    """
+    Keep from pwt the set of states such that only words of length are
+    generatable.
+    
+    pwt -- the tree, made of n-grams;
+    length -- the wanted length. length >= n.
+    """
+    
+    def unroll(state, length, unstates):
+        """
+        Unroll length times the transition from state.
+        
+        state -- the origin state;
+        length -- the unrolling length. length >= 1;
+        unstates -- a dict of (level, state) => newstate pairs already unrolled.
+        """
+        if length <= 1:
+            new = ProbState(state.ngram, None, state.finishing)
+            unstates[(length, state)] = new
+            return new
+        else:
+            successors = {}
+            for succ, occ in state.successors.items():
+                if (length - 1, succ) in unstates:
+                    unrolled = unstates[(length - 1, succ)]
+                else:
+                    unrolled = unroll(succ, length - 1, unstates)
+                successors[unrolled] = occ
+            new = ProbState(state.ngram, successors, state.finishing)
+            unstates[(length, state)] = new
+            return new
+            
+    
+    def prune(state, length):
+        """
+        Prune the subtree starting at state to words of length.
+        
+        Return the number of words of length generatable from state. Only words
+        of exactly length characters are kept, that is, only paths leading to
+        a finishing state in length steps.
+        
+        state -- the root of the tree. state and its successors must represent
+                 a tree (not a graph).
+        length -- the depth for the pruning. length >= 1.
+        """
+        if hasattr(state, 'words'):
+            return state.words
+        
+        if length <= 1:
+            words = 1 if state.finishing else 0
+        else:
+            words = 0
+            succs = state.successors.copy()
+            for succ, occ in succs.items():
+                subwords = prune(succ, length - 1)
+                words += subwords
+                if subwords <= 0:
+                    del state.successors[succ]
+        state.words = words
+        return words
+            
+            
+    # Unroll the tree (that is actually a graph) to level length
+    # That is, unroll length - n + 1
+    # TODO Merge same states at same level to avoid exponential blowup
+    beginnings = set()
+    unrolled = {}
+    for init in pwt.initials:
+        n = len(init.ngram)
+        beginnings.add(unroll(init, length - n + 1, unrolled))
+    
+    # For each initial state, for each of its successor
+    # if the number of words of length generatable from it is > 0,
+    # keep it, ortherwise remove it.
+    # This is a recursive procedure counting and removing successors at the
+    # same time
+    
+    # Prune all beginning states at length - n + 1
+    kept = beginnings.copy()
+    for init in beginnings:
+        if prune(init, length - n + 1) <= 0:
+            kept.remove(init)
+    return ProbWordTree(kept)
+    
+    
 def ngramtable(words, n):
     """
     Compute the set of n-grams (with number of occurrences) of words
@@ -200,13 +287,19 @@ if __name__ == "__main__":
     if len(sys.argv) <= 1:
         print("[ERROR] Need text path.")
     else:
+        print("Read text")
         filename = sys.argv[1]
         text = get_text_from_filename(filename)
         text = text.lower()
         text = "".join(filter(lambda x : x.isalpha() or x.isspace(), text))
         words = text.split()
+        print("Create table")
         ngt = ngramtable(words, n)
+        print("Create tree")
         pwt = ngramtable_to_probwordtree(ngt)
-        # TODO Only keep the part of pwt that can produce words of given length
+        # Only keep the part of pwt that can produce words of given length
+        print("Unroll and prune tree")
+        pwt = keep_words(pwt, wordlen)
+        print("Generate words")
         for i in range(nbwords):
             print(pwt.randomword(wordlen))
