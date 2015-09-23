@@ -240,7 +240,7 @@ def determinize(automaton):
         
     
     # Subsets of states of automaton become states of the determinized automaton
-    # Start with the subset of initial states
+    # Start with the subset of initial state
     # For each new state s, there is an x-transition to another state s' iff
     # there is a state in s with an x-transition to s';
     
